@@ -9,17 +9,20 @@ const PASSWORD = process.env.NEO4J_PASSWORD
 const driver = neo4j.driver(URI, neo4j.auth.basic(USER, PASSWORD))
 
 async function establishConnection() {
+    let session
+
     try {
-        const session = driver.session()
+        session = driver.session()
         const serverInfo = await driver.getServerInfo()
         console.log("Connection established")
         console.log(serverInfo)
-        await session.close()
     } catch (err) {
         console.log(`Connection error\n${err}\nCause: ${err.cause}`)
+    } finally {
+        if (session) await session.close()
     }
 }
 
 establishConnection()
 
-export default neo4j
+export default driver
