@@ -28,15 +28,23 @@ def generate_fake_games(num_games):
         create_video_game(game_properties)
 
 # Función para generar géneros ficticios
-def generate_fake_genres(num_genres):
-    for _ in range(num_genres):
-        genre_properties = {
-            "nombre": random.choice(["RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer"]),
-            "popularidad": random.randint(1, 100),
-            "descripcion": fake.sentence(nb_words=6),
-            "promedio_calificacion": round(random.uniform(1.0, 10.0), 1)
-        }
-        create_genre(genre_properties)
+def generate_fake_genres():
+    genres_list = ["RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer"]
+    
+    for genre_name in genres_list:
+        # Verificar si el género ya existe
+        genre_node = graph.nodes.match("GENERO", nombre=genre_name).first()
+        
+        if not genre_node:
+            genre_properties = {
+                "nombre": genre_name,
+                "popularidad": random.randint(1, 100),
+                "descripcion": fake.sentence(nb_words=6),
+                "promedio_calificacion": round(random.uniform(1.0, 10.0), 1)
+            }
+            create_genre(genre_properties)
+        else:
+            print(f"El género {genre_name} ya existe.")
 
 # Función para generar plataformas ficticias
 def generate_fake_platforms(num_platforms):
@@ -90,16 +98,18 @@ def generate_fake_relationships(num_relationships):
     games = [game['titulo'] for game in graph.run("MATCH (g:JUEGO) RETURN g.titulo AS titulo").data()]
     genres = [genre['nombre'] for genre in graph.run("MATCH (g:GENERO) RETURN g.nombre AS nombre").data()]
     platforms = [platform['nombre'] for platform in graph.run("MATCH (p:PLATAFORMA) RETURN p.nombre AS nombre").data()]
-    reviews = [review['id'] for review in graph.run("MATCH (r:REVIEW) RETURN r.id AS id").data()]
-    guides = [guide['id'] for guide in graph.run("MATCH (g:GUIA) RETURN g.id AS id").data()]
+    reviews = [review['titulo'] for review in graph.run("MATCH (r:REVIEW) RETURN r.titulo AS titulo").data()]
+    guides = [guide['titulo'] for guide in graph.run("MATCH (g:GUIA) RETURN g.titulo AS titulo").data()]
     
     for _ in range(num_relationships):
         user_id = random.choice(users)
         game_id = random.choice(games)
         genre = random.choice(genres)
         platform = random.choice(platforms)
-        review = random.choice(reviews)
-        guide = random.choice(guides)
+        if reviews:
+            review = random.choice(reviews)
+        if guides:
+            guide = random.choice(guides)
         
         since = fake.date_between(start_date="-2y", end_date="today")
         hours_played = random.randint(1, 100)
@@ -129,15 +139,20 @@ def generate_fake_relationships(num_relationships):
         game_belongs_to_genre(game_id, genre, date, exclusive, average_rating)
 
         guide_stars = random.randint(1, 5)
-
         guide_belongs_to_game(guide, game_id, guide_stars)
 
+        # Eliminar la revisión seleccionada de la lista de revisiones
+        if review in reviews:
+            reviews.remove(review)
+        if guide in guides:
+            guides.remove(guide)
+
 # Generar datos ficticios
-generate_fake_users(50)
-generate_fake_games(100)
-generate_fake_genres(10)
-generate_fake_reviews(20)
+generate_fake_users(500)
+generate_fake_games(700)
+# generate_fake_genres()
+generate_fake_reviews(100)
 generate_fake_platforms(5)
 generate_fake_publishers(10)
-generate_fake_guides(20)
-generate_fake_relationships(200)
+generate_fake_guides(50)
+generate_fake_relationships(500)

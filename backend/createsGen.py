@@ -47,7 +47,7 @@ def user_plays_game(user_id, game_id, since, hours_played, favorite):
 
 def user_reviewed_game(user_id, review_id, date, rating, recommends):
     user_node = graph.nodes.match("GAMER", nombre=user_id).first()
-    review_node = graph.nodes.match("REVIEW", id=review_id).first()
+    review_node = graph.nodes.match("REVIEW", titulo=review_id).first()
     
     if user_node and review_node:
         relation = Relationship(user_node, "RESEÑÓ", review_node,
@@ -62,7 +62,7 @@ def user_reviewed_game(user_id, review_id, date, rating, recommends):
         return None
 
 def review_rates_game(review_id, game_id, date, stars, verified):
-    review_node = graph.nodes.match("REVIEW", id=review_id).first()
+    review_node = graph.nodes.match("REVIEW", titulo=review_id).first()
     game_node = graph.nodes.match("JUEGO", titulo=game_id).first()
     
     if review_node and game_node:
@@ -110,7 +110,7 @@ def game_belongs_to_genre(game_id, genre_name, release_date, exclusive, average_
         return None
 
 def guide_belongs_to_game(guide_id, game_id, stars):
-    guide_node = graph.nodes.match("GUIA", id=guide_id).first()
+    guide_node = graph.nodes.match("GUIA", titulo=guide_id).first()
     game_node = graph.nodes.match("JUEGO", titulo=game_id).first()
     
     if guide_node and game_node:
