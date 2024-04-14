@@ -1,6 +1,6 @@
 from faker import Faker
 import random
-from createsGen import *
+from backend.nodes_relationships import *
 
 fake = Faker()
 
