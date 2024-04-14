@@ -1,8 +1,5 @@
 from py2neo import Node, Relationship
-from database import graph
-
-def testTest():
-    print("testTest")
+from database import *
 
 def create_node(labels, **properties):
     node = Node(*labels, **properties)
@@ -29,7 +26,6 @@ def delete_node(node):
 
 def delete_relation(relation):
     graph.delete(relation)
-
 def request_data(properties):
     """
     Solicita al usuario que introduzca valores para una serie de propiedades definidas en un diccionario con tipos.
@@ -53,17 +49,37 @@ def request_data(properties):
                     user_input = input(f"Enter {prop} (Booleano, e.g., yes or no), leave blank if not applicable: ")
                     if user_input.lower() in ['yes', 'true', '1']:
                         data[prop] = True
+                        break
                     elif user_input.lower() in ['no', 'false', '0', '']:
                         data[prop] = False
+                        break
                     else:
                         raise ValueError("Please enter 'yes' or 'no'.")
                 else:
-                    user_input = input(f"Enter {prop} ({datatype._name_}), leave blank if not applicable: ")
+                    user_input = input(f"Enter {prop} ({datatype.__name__}), leave blank if not applicable: ")
                     if user_input == "" and datatype is not bool:
                         data[prop] = None
                     else:
                         data[prop] = datatype(user_input)
                     break
             except ValueError as e:
-                print(f"Invalid input for {prop}, expected {datatype._name_}. Error: {e}. Please try again.")
+                print(f"Invalid input for {prop}, expected {datatype.__name__}. Error: {e}. Please try again.")
     return data
+
+def find_games_by_genre(genre):
+    query = (
+        "MATCH (g:Game)-[:HAS_GENRE]->(genre:Genre {name: $genre}) "
+        "RETURN g.name AS name, g.platform AS platform, g.release_year AS release_year"
+    )
+    result = graph.run(query, genre=genre)
+    return result
+
+def recommend_games_for_user(user_id):
+    query = (
+        "MATCH (u:User {id: $user_id})-[:LIKES]->(g:Game)<-[:LIKES]-(other:User)-[:LIKES]->(rec:Game) "
+        "WHERE NOT (u)-[:LIKES]->(rec) "
+        "RETURN rec.name AS name, rec.platform AS platform, rec.release_year AS release_year, COUNT(*) AS score "
+        "ORDER BY score DESC LIMIT 10"
+    )
+    result = graph.run(query, user_id=user_id)
+    return result
