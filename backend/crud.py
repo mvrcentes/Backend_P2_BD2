@@ -26,6 +26,7 @@ def delete_node(node):
 
 def delete_relation(relation):
     graph.delete(relation)
+
 def request_data(properties):
     """
     Solicita al usuario que introduzca valores para una serie de propiedades definidas en un diccionario con tipos.
@@ -68,18 +69,92 @@ def request_data(properties):
 
 def find_games_by_genre(genre):
     query = (
-        "MATCH (g:Game)-[:HAS_GENRE]->(genre:Genre {name: $genre}) "
-        "RETURN g.name AS name, g.platform AS platform, g.release_year AS release_year"
+        "MATCH (g:JUEGO)-[:PERTENECE_A]->(genre:GENERO {nombre: $genre}) "
+        'RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento'
     )
     result = graph.run(query, genre=genre)
     return result
 
 def recommend_games_for_user(user_id):
     query = (
-        "MATCH (u:User {id: $user_id})-[:LIKES]->(g:Game)<-[:LIKES]-(other:User)-[:LIKES]->(rec:Game) "
-        "WHERE NOT (u)-[:LIKES]->(rec) "
-        "RETURN rec.name AS name, rec.platform AS platform, rec.release_year AS release_year, COUNT(*) AS score "
+        "MATCH (u:GAMER {nombre: $user_id})-[:JUEGA]->(g:JUEGO)<-[:JUEGA]-(other:GAMER)-[:JUEGA]->(rec:JUEGO) "
+        "WHERE NOT (u)-[:JUEGA]->(rec) "
+        "RETURN rec.titulo AS title, rec.plataformas AS platform, rec.lanzamiento AS release_date, COUNT(*) AS score "
         "ORDER BY score DESC LIMIT 10"
     )
     result = graph.run(query, user_id=user_id)
     return result
+
+def create_user():
+    user_properties = {
+        "nombre": str,
+        "edad": int,
+        "email": str,
+        "activo": bool,
+        "generos_favoritos": list
+    }
+    user_data = request_data(user_properties)
+    return create_node(["USUARIO", "GAMER"], **user_data)
+
+def create_video_game():
+    video_game_properties = {
+        "titulo": str,
+        "precio": float,
+        "lanzamiento": str,  
+        "plataformas": list
+    }
+    video_game_data = request_data(video_game_properties)
+    return create_node(["VIDEOJUEGO", "JUEGO"], **video_game_data)
+
+def create_genre():
+    genre_properties = {
+        "nombre": str,
+        "popularidad": int,
+        "descripcion": str,
+        "promedio_calificacion": float
+    }
+    genre_data = request_data(genre_properties)
+    return create_node(["GENERO"], **genre_data)
+
+def create_review():
+    review_properties = {
+        "titulo": str,
+        "contenido": str,
+        "calificacion": int,
+        "fecha": str,  
+        "util": bool
+    }
+    review_data = request_data(review_properties)
+    return create_node(["REVIEW", "CRITICA"], **review_data)
+
+def create_platform():
+    platform_properties = {
+        "nombre": str,
+        "fabricante": str,
+        "fecha_lanzamiento": str,  
+        "disponible": bool,
+        "exclusivos": list
+    }
+    platform_data = request_data(platform_properties)
+    return create_node(["PLATAFORMA"], **platform_data)
+
+def create_publisher():
+    publisher_properties = {
+        "nombre": str,
+        "fundacion": str,  
+        "pais": str,
+        "sitio_web": str
+    }
+    publisher_data = request_data(publisher_properties)
+    return create_node(["DISTRIBUIDORA"], **publisher_data)
+
+def create_guide():
+    guide_properties = {
+        "titulo": str,
+        "contenido": str,
+        "autor": str,
+        "fecha_publicacion": str,  
+        "etiquetas": list
+    }
+    guide_data = request_data(guide_properties)
+    return create_node(["GUIA"], **guide_data)

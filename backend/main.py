@@ -1,47 +1,56 @@
+# main.py (actualización)
+
 from crud import *
 
-def main_menu():
+def main():
+    print("Bienvenido al sistema de recomendaciones de videojuegos!")
+    
+    # Iniciar sesión
+    user_email = input("Por favor, introduzca su correo electrónico para iniciar sesión: ")
+    user_node = graph.nodes.match("USUARIO", email=user_email).first()
+    
+    if user_node:
+        print(f"Bienvenido de nuevo, {user_node['nombre']}!")
+    else:
+        print("Usuario no encontrado.")
+        create_new_user = input("¿Desea crear un nuevo usuario? (yes/no): ")
+        if create_new_user.lower() == "yes":
+            create_user()
+            print("Usuario creado exitosamente. Por favor, inicie sesión nuevamente.")
+            main()
+        else:
+            print("Saliendo del sistema.")
+            return
+    
+    # Menú principal
     while True:
-        print("\n=== Video Game Recommendation System ===")
-        print("1. Search games by genre")
-        print("2. Get game recommendations")
-        print("3. Add a new game")
-        print("4. Exit")
+        print("\nMenú principal:")
+        print("1. Recomendar juegos")
+        print("2. Buscar juegos por género")
+        print("3. Jugar un juego")
+        print("4. Escribir una reseña")
+        print("5. Salir")
         
-        choice = input("Select an option: ")
+        choice = input("Por favor, seleccione una opción: ")
         
         if choice == "1":
-            genre = input("Enter the genre to search for: ")
-            result = find_games_by_genre(genre)
-            for record in result:
-                print(f"Name: {record['name']}, Platform: {record['platform']}, Release Year: {record['release_year']}")
-                
+            print("Recomendaciones basadas en sus preferencias:")
+            print(recommend_games_for_user(user_node['id']))
         elif choice == "2":
-            user_id = input("Enter your user ID: ")  # You might need to implement user authentication
-            result = recommend_games_for_user(user_id)
-            for record in result:
-                print(f"Name: {record['name']}, Platform: {record['platform']}, Release Year: {record['release_year']}")
-                
+            genre = input("Introduzca el género que desea buscar: ")
+            print("Recomendaciones basadas en el género seleccionado:")
+            print(find_games_by_genre(genre))
         elif choice == "3":
-            game_properties = {
-                "name": str,
-                "platform": str,
-                "release_year": int,
-                "genres": list
-            }
-            game_data = request_data(game_properties)
-            game_node = create_node(["Game"], **game_data)
-            genre_nodes = []
-            for genre in game_data["genres"]:
-                genre_node = merge_node(["Genre"], name=genre)
-                create_relation(game_node, "HAS_GENRE", genre_node)
-                genre_nodes.append(genre_node)
-                
+            # Funcionalidad para jugar un juego
+            pass
         elif choice == "4":
+            # Funcionalidad para escribir una reseña
+            pass
+        elif choice == "5":
+            print("Saliendo del sistema.")
             break
-            
         else:
-            print("Invalid choice. Please try again.")
+            print("Opción no válida. Por favor, intente de nuevo.")
 
 if __name__ == "__main__":
-    main_menu()
+    main()
