@@ -38,8 +38,19 @@ def main():
             print(recommend_games_for_user(user_node['id']))
         elif choice == "2":
             genre = input("Introduzca el género que desea buscar: ")
-            print("Recomendaciones basadas en el género seleccionado:")
-            print(find_games_by_genre(genre))
+            print("Recomendaciones basadas en el género seleccionado:\n")
+            headers = ["Título", "Plataformas", "Fecha_de_Lanzamiento"]
+            header_format = "{:<30} | {:<50} | {:<20}"
+
+            print(header_format.format(*headers))
+            print("-" * 30 + "|" + "-" * 50 + "|" + "-" * 20)
+
+            for record in find_games_by_genre(genre):
+                titulo = record['Titulo'][:30].ljust(30)
+                plataformas = str(record['Plataformas'])[:50].ljust(50)
+                fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
+
+                print(f"{titulo} | {plataformas} | {fecha}")
         elif choice == "3":
             # Funcionalidad para jugar un juego
             pass

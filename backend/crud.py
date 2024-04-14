@@ -69,8 +69,8 @@ def request_data(properties):
 
 def find_games_by_genre(genre):
     query = (
-        "MATCH (g:JUEGO)-[:PERTENECE_A]->(genre:GENERO {nombre: $genre}) "
-        'RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento'
+        "MATCH (g:VIDEOJUEGO)-[:PERTENECE_A]->(genre:GENERO {nombre: $genre}) "
+        'RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento LIMIT 20'
     )
     result = graph.run(query, genre=genre)
     return result
