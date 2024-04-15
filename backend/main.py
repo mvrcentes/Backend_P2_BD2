@@ -41,14 +41,14 @@ def main():
 
             if games_list:
                 headers = ["Título", "Plataformas", "Fecha_de_Lanzamiento", "Rating"]
-                header_format = "{:<30} | {:<50} | {:<20}"
+                header_format = "{:<30} | {:<55} | {:<20} | {:<10}"
 
                 print(header_format.format(*headers))
-                print("-" * 30 + "|" + "-" * 50 + "|" + "-" * 20)
+                print("-" * 30 + "|" + "-" * 55 + "|" + "-" * 20 + "|" + "-" * 10)
 
                 for record in games_list:
                     titulo = record['Titulo'][:30].ljust(30)
-                    plataformas = str(record['Plataformas'])[:50].ljust(50)
+                    plataformas = str(record['Plataformas'])[:55].ljust(55)
                     fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
                     rating = str(record['Rating'])[:10].ljust(10)
 
