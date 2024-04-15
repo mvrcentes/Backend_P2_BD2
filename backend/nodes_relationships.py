@@ -123,3 +123,18 @@ def guide_belongs_to_game(guide_id, game_id, stars):
     else:
         print(f"No se encontró la guía con id {guide_id} o el juego con id {game_id}")
         return None
+    
+def publisher_publishes_game(publisher_id, game_id, cant_games, territories, fecha_distribucion):
+    publisher_node = graph.nodes.match("DISTRIBUIDORA", nombre=publisher_id).first()
+    game_node = graph.nodes.match("JUEGO", titulo=game_id).first()
+    
+    if publisher_node and game_node:
+        relation = Relationship(publisher_node, "DISTRIBUYE", game_node,
+                                cantidad_distribuida=cant_games,
+                                territorios_distribucion=territories,
+                                fecha_distribucion=fecha_distribucion)
+        
+        graph.create(relation)
+        return relation
+    else:
+        print(f'No se encontró la distribuidora con nombre {publisher_id} o el juego con titulo {game_id}')

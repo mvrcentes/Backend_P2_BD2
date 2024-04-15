@@ -1,6 +1,6 @@
 from faker import Faker
 import random
-from backend.nodes_relationships import *
+from nodes_relationships import *
 
 fake = Faker()
 
@@ -147,12 +147,29 @@ def generate_fake_relationships(num_relationships):
         if guide in guides:
             guides.remove(guide)
 
+def generate_fake_publish_relationships(num_relationships):
+    publishers = [publisher["nombre"] for publisher in graph.run("MATCH (p:DISTRIBUIDORA) RETURN p.nombre AS nombre").data()]
+    games = [game['titulo'] for game in graph.run("MATCH (g:JUEGO) RETURN g.titulo AS titulo").data()]
+
+    for _ in range(num_relationships):
+        publisher_id = random.choice(publishers)
+        game_id = random.choice(games)
+
+        cant_distribuida = random.randint(10000,100000)
+        territories = [fake.country() for _ in range(4)]
+        date = fake.date_between(start_date="-2y", end_date="today")
+
+        publisher_publishes_game(publisher_id, game_id, cant_distribuida, territories, date)
+
+
 # Generar datos ficticios
-generate_fake_users(500)
-generate_fake_games(700)
-# generate_fake_genres()
-generate_fake_reviews(100)
-generate_fake_platforms(5)
-generate_fake_publishers(10)
-generate_fake_guides(50)
-generate_fake_relationships(500)
+# generate_fake_users(500)
+# generate_fake_games(700)
+# # generate_fake_genres()
+# generate_fake_reviews(100)
+# generate_fake_platforms(5)
+# generate_fake_publishers(10)
+# generate_fake_guides(50)
+# generate_fake_relationships(500)
+
+generate_fake_publish_relationships(600)
