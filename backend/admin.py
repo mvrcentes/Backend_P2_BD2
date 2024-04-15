@@ -1,7 +1,13 @@
 from crud import *
 
+def add_properties_for_relation(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties):
+    start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
+    end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
+    relation = Relationship(start_node, relationship_type, end_node, **properties)
+    graph.push(relation)
 
 
+# PUBLISHER
 def create_publisher():
     publisher_properties = {
       "nombre": str,
@@ -47,10 +53,38 @@ def add_properties_to_publisher():
         properties = dict(item.split(":") for item in input_properties.split(","))
         add_properties_for_node(NodeMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, **properties)
 
+def add_properties_to_multiple_publishers():
+    # pregunta por los nombres de las distribuidoras
+    publisher_names = input("Introduzca los nombres de las distribuidoras a las que desea agregar propiedades separadas por comas: ")
+    publisher_names_list = [f"'{name.strip()}'" for name in publisher_names.split(",")]
+    # verificar si las distribuidoras existen
+    query = (
+        "MATCH (d:DISTRIBUIDORA) "
+        f"WHERE d.nombre IN [{','.join(publisher_names_list)}] "
+        "RETURN d"
+    )
+    publisher_nodes = graph.run(query).data()
+    # si las distribuidoras existen pregunta por las propiedades a agregar
+    if publisher_nodes:
+        input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
+        properties = dict(item.split(":") for item in input_properties.split(","))
+        
+        for publisher_node in publisher_nodes:
+            add_properties_for_node(NodeMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_node["d"]["nombre"], **properties)
 
-
-
-
+def add_properties_to_publisher_relationship():
+    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea agregar propiedades a su relación: ")
+    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
+    if publisher_node:
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_node_label = input("Introduzca la etiqueta del nodo final: ")
+        end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
+        end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
+        input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
+        properties = dict(item.split(":") for item in input_properties.split(","))
+        add_properties_for_relation(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
+    else:
+        print("Distribuidora no encontrada.")
 
 def menu_distribuidora():
     print("Menú de Distribuidora:")
@@ -118,7 +152,7 @@ def admin_menu():
         choice = input("Por favor, seleccione una opción: ")
         
         if choice == "1":
-            menu_publisher()
+            menu_distribuidora()
         elif choice == "2":
             menu_juegos()
         elif choice == "3":
@@ -136,6 +170,3 @@ def admin_menu():
             return
         else:
             print("Opción inválida. Por favor, seleccione una opción válida.")
-
-
-menu_distribuidora()

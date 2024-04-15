@@ -1,4 +1,4 @@
-from py2neo import Node, Relationship, NodeMatcher
+from py2neo import Node, Relationship, NodeMatcher, RelationshipMatcher
 from database import *
 
 def create_node(labels, **properties):
@@ -55,14 +55,6 @@ def add_properties_for_node(matcher, label, property_name, property_value, **pro
     for prop, value in properties.items():
         node[prop] = value
     graph.push(node)
-
-#Operacion que permita agregar 1 o mas propiedades a multiples nodos
-def add_properties_for_multiple_nodes(matcher, label, property_name, property_value, **properties):
-    nodes = matcher.match(label).where(f"_.{property_name} = '{property_value}'")
-    for node in nodes:
-        for prop, value in properties.items():
-            node[prop] = value
-        graph.push(node)
 
  #Operación que permita realizar la actualización de 1 o más propiedades de un nodo
 def update_node_properties(label, property_name, property_value, **properties):
@@ -186,7 +178,10 @@ def request_data(properties):
                     else:
                         raise ValueError("Please enter 'yes' or 'no'.")
                 else:
-                    user_input = input(f"Enter {prop} ({datatype.__name__}), leave blank if not applicable: ")
+                    if prop == "fundacion" or prop == "fecha_lanzamiento" or prop == "fecha_publicacion" or prop == "lanzamiento":
+                        user_input = input(f"Enter {prop} (YYYY-MM-DD), leave blank if not applicable: ")
+                    else:
+                        user_input = input(f"Enter {prop} ({datatype.__name__}), leave blank if not applicable: ")
                     if user_input == "" and datatype is not bool:
                         data[prop] = None
                     else:
