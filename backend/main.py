@@ -2,12 +2,20 @@
 
 from crud import *
 from nodes_relationships import *
+from admin import *
 
 def main():
     print("Bienvenido al sistema de recomendaciones de videojuegos!")
     
     # Iniciar sesión
     user_email = input("Por favor, introduzca su correo electrónico para iniciar sesión: ")
+
+     # Verificar si el correo es el del administrador
+    if user_email == "admin@ejemplo.com":
+        print("Acceso de administrador concedido.")
+        admin_menu()
+        return
+
     user_node = graph.nodes.match("USUARIO", email=user_email).first()
     
     if user_node:
