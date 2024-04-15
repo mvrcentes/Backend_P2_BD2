@@ -1,9 +1,9 @@
 from crud import *
 
 # CREATE NODES
-def create_user(user_properties):
-    labels = ["USUARIO", "GAMER"]
-    return create_node(labels, **user_properties)
+# def create_user(user_properties):
+#     labels = ["USUARIO", "GAMER"]
+#     return create_node(labels, **user_properties)
 
 def create_video_game(game_properties):
     labels = ["VIDEOJUEGO", "JUEGO"]

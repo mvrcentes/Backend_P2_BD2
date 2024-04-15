@@ -102,16 +102,16 @@ def recommend_games_for_user(user_id):
 
     return result.data()
 
-# def create_user():
-#     user_properties = {
-#         "nombre": str,
-#         "edad": int,
-#         "email": str,
-#         "activo": bool,
-#         "generos_favoritos": list
-#     }
-#     user_data = request_data(user_properties)
-#     return create_node(["USUARIO", "GAMER"], **user_data)
+def create_user():
+    user_properties = {
+        "nombre": str,
+        "edad": int,
+        "email": str,
+        "activo": bool,
+        "generos_favoritos": list
+    }
+    user_data = request_data(user_properties)
+    return create_node(["USUARIO", "GAMER"], **user_data)
 
 # def create_video_game():
 #     video_game_properties = {
