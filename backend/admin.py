@@ -71,7 +71,10 @@ def menu_distribuidora():
     choice = input("Por favor, seleccione una opción: ")
     
     if choice == "1":
+        print("\n\n----Creando Distribuidora----")
+    
         create_publisher()
+        
     elif choice == "2":
         update_publisher()
     elif choice == "3":
@@ -133,3 +136,6 @@ def admin_menu():
             return
         else:
             print("Opción inválida. Por favor, seleccione una opción válida.")
+
+
+menu_distribuidora()
