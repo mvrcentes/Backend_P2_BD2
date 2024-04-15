@@ -117,6 +117,24 @@ def add_properties_to_publisher_game_relationships():
             )
             graph.run(query, properties=properties)
 
+# opcion 9
+def delete_properties_from_publishers():
+    # Solicitar los nombres de las distribuidoras
+    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea eliminar propiedades, separados por comas: ")
+    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+
+    # Solicitar las propiedades a eliminar
+    properties_input = input("Introduzca las propiedades a eliminar en formato clave, separadas por comas: ")
+    properties = properties_input.split(",")
+
+    # Para cada distribuidora, eliminar las propiedades especificadas
+    for publisher_name in publisher_names:
+        query = (
+            f"MATCH (d:DISTRIBUIDORA {{nombre: '{publisher_name}'}}) "
+            f"REMOVE {', '.join([f'd.{prop}' for prop in properties])}"
+        )
+        graph.run(query)
+
 def menu_distribuidora():
     print("Menú de Distribuidora:")
     print("1. Crear Distribuidora")
@@ -155,7 +173,7 @@ def menu_distribuidora():
     elif choice == "8":
         delete_properties_from_publisher()
     elif choice == "9":
-        delete_properties_from_multiple_publishers()
+        delete_properties_from_publishers()
     elif choice == "10":
         delete_properties_from_publisher_relationship()
     elif choice == "12":
