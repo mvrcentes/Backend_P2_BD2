@@ -1,4 +1,4 @@
-from py2neo import Node, Relationship
+from py2neo import Node, Relationship, NodeMatcher
 from database import *
 
 def create_node(labels, **properties):
@@ -6,15 +6,26 @@ def create_node(labels, **properties):
     graph.create(node)
     return node
 
+def merge_node(labels, key_property, key_value, **properties):
+    matcher = NodeMatcher(graph)
+    node = matcher.match(*labels).where(f"_.{key_property} = '{key_value}'").first()
+    
+    if node:
+        # Update existing node properties
+        for prop, value in properties.items():
+            node[prop] = value
+        graph.push(node)
+        return False
+    else:
+        # Create a new node
+        node = Node(*labels, **{key_property: key_value, **properties})
+        graph.create(node)
+        return True
+
 def create_relation(start_node, relationship_type, end_node, **properties):
     relation = Relationship(start_node, relationship_type, end_node, **properties)
     graph.create(relation)
     return relation
-
-def merge_node(labels, **properties):
-    node = Node(*labels, **properties)
-    graph.merge(node)
-    return node
 
 def merge_relation(start_node, relationship_type, end_node, **properties):
     relation = Relationship(start_node, relationship_type, end_node, **properties)
@@ -111,7 +122,12 @@ def create_user():
         "generos_favoritos": list
     }
     user_data = request_data(user_properties)
-    return create_node(["USUARIO", "GAMER"], **user_data)
+    created_new_user = merge_node(["USUARIO", "GAMER"], "email", user_data["email"], **user_data)
+    
+    if created_new_user:
+        return True
+    else:
+        return False
 
 # def create_video_game():
 #     video_game_properties = {

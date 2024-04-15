@@ -16,8 +16,10 @@ def main():
         print("Usuario no encontrado.")
         create_new_user = input("¿Desea crear un nuevo usuario? (yes/no): ")
         if create_new_user.lower() == "yes":
-            create_user()
-            print("Usuario creado exitosamente. Por favor, inicie sesión nuevamente.")
+            if create_user():
+                print("Usuario creado exitosamente.")
+            else:
+                print("Ese correo ya está en uso. Usuario Actualizado")
             main()
         else:
             print("Saliendo del sistema.")
