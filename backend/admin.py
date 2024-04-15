@@ -135,6 +135,37 @@ def delete_properties_from_publishers():
         )
         graph.run(query)
 
+# opcion 11
+def delete_properties_from_publisher_game_relationships():
+    # Solicitar el nombre de la distribuidora
+    distributor_name = input("Introduzca el nombre de la distribuidora: ")
+
+    # Solicitar los títulos de los juegos
+    games_input = input("Introduzca los títulos de los juegos a los que desea eliminar propiedades, separados por comas: ")
+    games = games_input.split(",")
+
+    # Solicitar las propiedades a eliminar
+    properties_input = input("Introduzca las propiedades a eliminar en formato clave, separadas por comas: ")
+    properties = properties_input.split(",")
+
+    # Verificar si la distribuidora existe
+    query = (
+        "MATCH (d:DISTRIBUIDORA) "
+        f"WHERE d.nombre = '{distributor_name}' "
+        "RETURN d"
+    )
+    distributor_node = graph.run(query).data()
+
+    # Si la distribuidora existe
+    if distributor_node:
+        # Para cada juego, eliminar las propiedades de la relación con la distribuidora
+        for game_title in games:
+            query = (
+                f"MATCH (:DISTRIBUIDORA {{nombre: '{distributor_name}'}})-[r:DISTRIBUYE]->(:JUEGO {{titulo: '{game_title}'}}) "
+                f"REMOVE {', '.join([f'r.{prop}' for prop in properties])}"
+            )
+            graph.run(query)
+
 def menu_distribuidora():
     print("Menú de Distribuidora:")
     print("1. Crear Distribuidora")
@@ -176,6 +207,8 @@ def menu_distribuidora():
         delete_properties_from_publishers()
     elif choice == "10":
         delete_properties_from_publisher_relationship()
+    elif choice == "11":
+        delete_properties_from_publisher_game_relationships()
     elif choice == "12":
         view_publishers()
     elif choice == "13":
