@@ -76,14 +76,30 @@ def find_games_by_genre(genre):
     return result
 
 def recommend_games_for_user(user_id):
-    query = (
+    query1 = (
         "MATCH (u:GAMER {nombre: $user_id})-[:JUEGA]->(g:JUEGO)<-[:JUEGA]-(other:GAMER)-[:JUEGA]->(rec:JUEGO) "
         "WHERE NOT (u)-[:JUEGA]->(rec) "
         "RETURN rec.titulo AS title, rec.plataformas AS platform, rec.lanzamiento AS release_date, COUNT(*) AS score "
         "ORDER BY score DESC LIMIT 10"
     )
-    result = graph.run(query, user_id=user_id)
-    return result
+    result = graph.run(query1, user_id=user_id)
+
+    # Check if the first query returned any data
+    if not result.data():
+        print("No results found based on user's gaming habits. Trying alternative recommendations...")
+        
+        query2 = (
+            "MATCH (u:GAMER {nombre: $user_id}) "
+            "UNWIND u.generos_favoritos AS fav_genre "
+            "MATCH (g:JUEGO)-[:PERTENECE_A]->(genre:GENERO {nombre: fav_genre}) "
+            "MATCH (r:REVIEW)-[cal:CALIFICA]->(g) "
+            "WHERE cal.estrellas >= 3 "
+            "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento, AVG(cal.estrellas) AS Rating "
+            "ORDER BY Rating DESC LIMIT 10"
+        )
+        result = graph.run(query2, user_id=user_id)
+
+    return result.data()
 
 # def create_user():
 #     user_properties = {

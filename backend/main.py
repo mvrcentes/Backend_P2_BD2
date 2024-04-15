@@ -36,7 +36,26 @@ def main():
         
         if choice == "1":
             print("Recomendaciones basadas en sus preferencias:")
-            print(recommend_games_for_user(user_node['id']))
+            recommended_games = recommend_games_for_user(user_node['nombre'])
+            games_list = list(recommended_games)
+
+            if games_list:
+                headers = ["Título", "Plataformas", "Fecha_de_Lanzamiento", "Rating"]
+                header_format = "{:<30} | {:<50} | {:<20}"
+
+                print(header_format.format(*headers))
+                print("-" * 30 + "|" + "-" * 50 + "|" + "-" * 20)
+
+                for record in games_list:
+                    titulo = record['Titulo'][:30].ljust(30)
+                    plataformas = str(record['Plataformas'])[:50].ljust(50)
+                    fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
+                    rating = str(record['Rating'])[:10].ljust(10)
+
+                    print(f"{titulo} | {plataformas} | {fecha} | {rating}")
+            else:
+                print("No se encontraron juegos recomendados.")
+
         elif choice == "2":
             genre = input("Introduzca el género que desea buscar: ")
             games_by_genre = find_games_by_genre(genre)
