@@ -86,6 +86,37 @@ def add_properties_to_publisher_relationship():
     else:
         print("Distribuidora no encontrada.")
 
+# opcion 7 
+def add_properties_to_publisher_game_relationships():
+    # Solicitar el nombre de la distribuidora
+    distributor_name = input("Introduzca el nombre de la distribuidora: ")
+
+    # Solicitar los títulos de los juegos
+    games_input = input("Introduzca los títulos de los juegos a los que desea agregar propiedades, separados por comas: ")
+    games = games_input.split(",")
+
+    # Solicitar las propiedades a agregar
+    properties_input = input("Introduzca las propiedades a agregar en formato clave:valor, separadas por comas: ")
+    properties = dict(item.split(":") for item in properties_input.split(","))
+
+    # Verificar si la distribuidora existe
+    query = (
+        "MATCH (d:DISTRIBUIDORA) "
+        f"WHERE d.nombre = '{distributor_name}' "
+        "RETURN d"
+    )
+    distributor_node = graph.run(query).data()
+
+    # Si la distribuidora existe
+    if distributor_node:
+        # Para cada juego, agregar las propiedades a la relación con la distribuidora
+        for game_title in games:
+            query = (
+                f"MATCH (:DISTRIBUIDORA {{nombre: '{distributor_name}'}})-[r:DISTRIBUYE]->(:JUEGO {{titulo: '{game_title}'}}) "
+                "SET r += $properties"
+            )
+            graph.run(query, properties=properties)
+
 def menu_distribuidora():
     print("Menú de Distribuidora:")
     print("1. Crear Distribuidora")
@@ -120,7 +151,7 @@ def menu_distribuidora():
     elif choice == "6":
         add_properties_to_publisher_relationship()
     elif choice == "7":
-        add_properties_to_multiple_publisher_relationships()
+        add_properties_to_publisher_game_relationships()
     elif choice == "8":
         delete_properties_from_publisher()
     elif choice == "9":
