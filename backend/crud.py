@@ -86,7 +86,7 @@ def recommend_games_for_user(user_id):
 
     # Check if the first query returned any data
     if not result.data():
-        print("No results found based on user's gaming habits. Trying alternative recommendations...")
+        print("No hay resultados basado en los hábitos de gaming del usuario. Intentando con una recomendación alternativa...")
         
         query2 = (
             "MATCH (u:GAMER {nombre: $user_id}) "
