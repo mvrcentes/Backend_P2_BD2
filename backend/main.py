@@ -40,19 +40,20 @@ def main():
             games_list = list(recommended_games)
 
             if games_list:
-                headers = ["Título", "Plataformas", "Fecha_de_Lanzamiento", "Rating"]
-                header_format = "{:<30} | {:<55} | {:<20} | {:<10}"
+                headers = ["Título", "Plataformas", "Fecha de Lanzamiento", "Género", "Rating"]
+                header_format = "{:<20} | {:<50} | {:<20} | {:<10} | {:<10}"
 
                 print(header_format.format(*headers))
-                print("-" * 30 + "|" + "-" * 55 + "|" + "-" * 20 + "|" + "-" * 10)
+                print("-" * 20 + "|" + "-" * 50 + "|" + "-" * 20 + "|"  + "-" * 10 + "|" + "-" * 10)
 
                 for record in games_list:
-                    titulo = record['Titulo'][:30].ljust(30)
-                    plataformas = str(record['Plataformas'])[:55].ljust(55)
+                    titulo = record['Titulo'][:20].ljust(20)
+                    plataformas = str(record['Plataformas'])[:50].ljust(50)
                     fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
+                    genero = str(record['Genero'])[:10].ljust(10)
                     rating = str(record['Rating'])[:10].ljust(10)
 
-                    print(f"{titulo} | {plataformas} | {fecha} | {rating}")
+                    print(f"{titulo} | {plataformas} | {fecha} | {genero} | {rating}")
             else:
                 print("No se encontraron juegos recomendados.")
 

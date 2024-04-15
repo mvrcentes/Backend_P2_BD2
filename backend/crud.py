@@ -80,7 +80,7 @@ def recommend_games_for_user(user_id):
         "MATCH (u:GAMER {nombre: $user_id})-[:JUEGA]->(g:JUEGO)<-[:JUEGA]-(other:GAMER)-[:JUEGA]->(rec:JUEGO) "
         "WHERE NOT (u)-[:JUEGA]->(rec) "
         "RETURN rec.titulo AS title, rec.plataformas AS platform, rec.lanzamiento AS release_date, COUNT(*) AS score "
-        "ORDER BY score DESC LIMIT 10"
+        "ORDER BY score DESC LIMIT 30"
     )
     result = graph.run(query1, user_id=user_id)
 
@@ -92,10 +92,11 @@ def recommend_games_for_user(user_id):
             "MATCH (u:GAMER {nombre: $user_id}) "
             "UNWIND u.generos_favoritos AS fav_genre "
             "MATCH (g:JUEGO)-[:PERTENECE_A]->(genre:GENERO {nombre: fav_genre}) "
+            "WITH g, genre "
             "MATCH (r:REVIEW)-[cal:CALIFICA]->(g) "
             "WHERE cal.estrellas >= 3 "
-            "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento, AVG(cal.estrellas) AS Rating "
-            "ORDER BY Rating DESC LIMIT 10"
+            "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento, genre.nombre as Genero, AVG(cal.estrellas) AS Rating "
+            "ORDER BY Rating DESC LIMIT 30"
         )
         result = graph.run(query2, user_id=user_id)
 
