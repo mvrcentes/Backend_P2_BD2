@@ -84,3 +84,64 @@ def get_user_reviews(user_name):
             print("-" * 50)
     else:
         print("El usuario no tiene reseñas.")
+
+def get_user_games(user_name):
+    query = (
+        "MATCH (j:GAMER {email: $user_name})-[r:JUEGA]->(g:JUEGO) "
+        "RETURN g.titulo as Titulo, r.horas_jugadas as Horas, r.desde as Jugado_Desde "
+    )
+    results = graph.run(query, user_name=user_name).data()
+
+    return results
+
+def check_entity_exists(entity_type, entity_id):
+    if entity_type not in ["JUEGO", "GUIA", "REVIEW"]:
+        entity_key = "nombre"
+    else:
+        entity_key = "titulo"
+        
+    query = f"MATCH (e:{entity_type} {{{entity_key}: $entity_id}}) RETURN e"
+    result = graph.run(query, entity_id=entity_id).data()
+    
+    if result:
+        return True
+    else:
+        return False
+    
+def most_popular_games_by_genre():
+    query = (
+        "MATCH (g:JUEGO)-[:PERTENECE_A]->(genre:GENERO) "
+        "MATCH (r:REVIEW)-[:CALIFICA]->(g) "
+        "RETURN genre.nombre AS Genero, g.titulo AS Titulo, COUNT(r) AS Numero_de_Reseñas "
+        "ORDER BY Numero_de_Reseñas DESC LIMIT 10"
+    )
+    result = graph.run(query)
+    return result.data()
+
+def top_rated_games_overall():
+    query = (
+        "MATCH (g:JUEGO)<-[:CALIFICA]-(r:REVIEW) "
+        "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas "
+        "LIMIT 10"
+    )
+    result = graph.run(query)
+    return result.data()
+
+def most_active_gamers():
+    query = (
+        "MATCH (g:GAMER)-[r:JUEGA]->(j:JUEGO) "
+        "RETURN g.nombre AS Gamer, SUM(r.horas_jugadas) AS Horas_Totales "
+        "ORDER BY Horas_Totales DESC LIMIT 10"
+    )
+    result = graph.run(query)
+    return result.data()
+
+def games_with_most_diverse_platforms():
+    query = (
+        "MATCH (g:JUEGO) "
+        "WITH g, SIZE(g.plataformas) AS Numero_de_Plataformas "
+        "ORDER BY Numero_de_Plataformas DESC LIMIT 10 "
+        "RETURN g.titulo AS Titulo, Numero_de_Plataformas AS Numero_de_Plataformas"
+    )
+    result = graph.run(query)
+    return result.data()

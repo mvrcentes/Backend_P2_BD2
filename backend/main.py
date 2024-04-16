@@ -5,8 +5,9 @@ from nodes_relationships import *
 from admin import *
 
 def main():
-    print("Bienvenido al sistema de recomendaciones de videojuegos!")
+    print("Bienvenido al sistema de recomendaciones de videojuegos!\n")
     logged_in = False
+    more_options = False
     
     # Iniciar sesión
     user_email = input("Por favor, introduzca su correo electrónico para iniciar sesión o exit para salir: ")
@@ -25,7 +26,7 @@ def main():
     
     if user_node:
         logged_in = True
-        print(f"Bienvenido de nuevo, {user_node['nombre']}!")
+        print(f"Bienvenido de nuevo, {user_node['nombre']}!\n")
     else:
         print("Usuario no encontrado.")
         create_new_user = input("¿Desea crear un nuevo usuario? (yes/no): ")
@@ -36,20 +37,22 @@ def main():
                 print("Ese correo ya está en uso. Usuario Actualizado")
             main()
         else:
-            print("Saliendo del sistema.")
+            print("\nSaliendo del sistema.")
             return
     
     # Menú principal
     while logged_in:
         print("\nMenú principal:")
         print("1. Recomendar juegos basados en los generos que te gustan")
-        print("2. Recomendar juegos basados en tus juegos jugados")
+        print("2. Recomendar juegos basados en tus juegos jugados\n")
         print("3. Buscar juegos por género")
-        print("4. Buscar juegos")
+        print("4. Buscar juegos\n")
         print("5. Agregar juego a mis jugados")
-        print("6. Escribir una reseña")
-        print("7. Ver reseñas")
-        print("8. Salir")
+        print("6. Ver mis juegos\n")
+        print("7. Escribir una reseña")
+        print("8. Ver reseñas\n")
+        print("9. Más opciones\n")
+        print("10. Salir\n")
         
         choice = input("Por favor, seleccione una opción: ")
         
@@ -152,29 +155,146 @@ def main():
                 print("Juego añadido a su lista de jugados.")
             else:
                 print(f"No se encontró el juego con el título {titulo}.")
+
         elif choice == "6":
+            user_games = get_user_games(user_node['email'])
+            games_list = list(user_games)
+
+            if games_list:
+                print("Juegos jugados por el usuario:\n")
+                headers = ["Título", "Horas Jugadas", "Jugado Desde"]
+                header_format = "{:<30} | {:<30} | {:<20}"
+
+                print(header_format.format(*headers))
+                print("-" * 30 + "|" + "-" * 30 + "|" + "-" * 20)
+
+                for record in games_list:
+                    titulo = record['Titulo'][:30].ljust(30)
+                    horas = str(record['Horas'])[:30].ljust(30)
+                    fecha = str(record['Jugado_Desde'])[:20].ljust(20)
+
+                    print(f"{titulo} | {horas} | {fecha}")
+            else:
+                print("No se encontraron juegos jugados.")
+
+        elif choice == "7":
             entity_type = input("¿Qué desea calificar? (JUEGO/GENERO/DISTRIBUIDORA/PLATAFORMA): ").upper()
             entity_id = input(f"Introduzca el nombre del {entity_type}: ")
             
-            review_properties = {
-                "titulo": input("Introduzca el título de la reseña: "),
-                "contenido": input("Escriba su reseña: "),
-                "calificacion": int(input(f"Califique {entity_type} (1-5): ")),
-                "fecha": input("Introduzca la fecha de la reseña (YYYY-MM-DD): "),
-                "util": input(f"¿Recomienda {entity_type}? (True/False): ").lower() == "true"
-            }
-            
-            review_node = create_review(review_properties)
-            
-            if review_node:
-                user_reviewed_game(user_node['nombre'], review_node['titulo'], review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
-                review_rates(review_node['titulo'], entity_type, entity_id, review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
-                print("Reseña creada exitosamente y relación establecida.")
+            if check_entity_exists(entity_type, entity_id):
+                review_properties = {
+                    "titulo": input("Introduzca el título de la reseña: "),
+                    "contenido": input("Escriba su reseña: "),
+                    "calificacion": int(input(f"Califique {entity_type} (1-5): ")),
+                    "fecha": input("Introduzca la fecha de la reseña (YYYY-MM-DD): "),
+                    "util": input(f"¿Recomienda {entity_type}? (True/False): ").lower() == "true"
+                }
+                
+                review_node = create_review(review_properties)
+                
+                if review_node:
+                    user_reviewed_game(user_node['nombre'], review_node['titulo'], review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
+                    review_rates(review_node['titulo'], entity_type, entity_id, review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
+                    print("Reseña creada exitosamente y relación establecida.")
+                else:
+                    print("Error al crear la reseña.")
             else:
-                print("Error al crear la reseña.")
-        elif choice == "7":
-            get_user_reviews(user_node['nombre'])
+                print(f"No se encontró {entity_type} con el nombre {entity_id}.")
+
         elif choice == "8":
+            get_user_reviews(user_node['nombre'])
+        elif choice == "9":
+            more_options = True
+            while more_options:
+                print("\nMás opciones:")
+                print("1. Juegos más populares por género")
+                print("2. Mejores juegos")
+                print("3. Gamers más activos")
+                print("4. Juegos con más plataformas")
+                print("5. Regresar al menú principal\n")
+                
+                choice = input("Por favor, seleccione una opción: ")
+                
+                if choice == "1":
+                    friends_games = most_popular_games_by_genre()
+                    games_list = list(friends_games)
+
+                    if games_list:
+                        print("Juegos más populares por género:\n")
+                        headers = ["Género", "Título", "Rating"]
+                        header_format = "{:<33} | {:<33} | {:<33}"
+
+                        print(header_format.format(*headers))
+                        print("-" * 33 + "|" + "-" * 33 + "|" + "-" * 33)
+
+                        for record in games_list:
+                            titulo = record['Titulo'][:33].ljust(33)
+                            genero = str(record['Genero'])[:33].ljust(33)
+                            rating = str(record['Numero_de_Reseñas'])[:33].ljust(33)
+
+                            print(f"{genero} | {titulo} | {rating}")
+                    else:
+                        print("No se encontraron juegos.")
+                elif choice == "2":
+                    top_rated = top_rated_games_overall()
+                    games_list = list(top_rated)
+
+                    if games_list:
+                        print("Mejores juegos:\n")
+                        headers = ["Título", "Plataformas"]
+                        header_format = "{:<30} | {:<50}"
+
+                        print(header_format.format(*headers))
+                        print("-" * 30 + "|" + "-" * 50)
+
+                        for record in games_list:
+                            titulo = record['Titulo'][:30].ljust(30)
+                            rating = str(record['Plataformas'])[:50].ljust(50)
+
+                            print(f"{titulo} | {rating}")
+                    else:
+                        print("No se encontraron juegos recomendados.")
+                elif choice == "3":
+                    active_users = most_active_gamers()
+                    users_list = list(active_users)
+
+                    if users_list:
+                        print("Gamers más activos:\n")
+                        headers = ["Nombre", "Horas Totales"]
+                        header_format = "{:<30} | {:<30}"
+
+                        print(header_format.format(*headers))
+                        print("-" * 30 + "|" + "-" * 30)
+
+                        for record in users_list:
+                            nombre = record['Gamer'][:30].ljust(30)
+                            horas = str(record['Horas_Totales'])[:30].ljust(30)
+
+                            print(f"{nombre} | {horas}")
+                elif choice == "4":
+                    games_platforms = games_with_most_diverse_platforms()
+                    games_list = list(games_platforms)
+
+                    if games_list:
+                        print("Juegos con más plataformas:\n")
+                        headers = ["Título", "Plataformas"]
+                        header_format = "{:<30} | {:<50}"
+
+                        print(header_format.format(*headers))
+                        print("-" * 30 + "|" + "-" * 50)
+
+                        for record in games_list:
+                            titulo = record['Titulo'][:30].ljust(30)
+                            plataformas = str(record['Numero_de_Plataformas'])[:50].ljust(50)
+
+                            print(f"{titulo} | {plataformas}")
+                    else:
+                        print("No se encontraron juegos.")
+                elif choice == "5":
+                    more_options = False
+                else:
+                    print("Opción no válida. Por favor, intente de nuevo.")
+        elif choice == "10":
             print("Saliendo del sistema.")
             logged_in = False
             main()
