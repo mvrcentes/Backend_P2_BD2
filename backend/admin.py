@@ -1,14 +1,8 @@
 from crud import *
+from nodes_relationships import *
 
-def add_properties_for_relation(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties):
-    start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
-    end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
-    relation = Relationship(start_node, relationship_type, end_node, **properties)
-    graph.push(relation)
-
-
-# PUBLISHER
-def create_publisher():
+# opcion 1 crear publisher con merge
+def create_publisher_whith_merge():
     publisher_properties = {
       "nombre": str,
       "fundacion": str,  
@@ -18,6 +12,18 @@ def create_publisher():
     publisher_data = request_data(publisher_properties)
     merge_node(["DISTRIBUIDORA"], "nombre", publisher_data["nombre"], **publisher_data)
 
+# opcion 2 crear publisher con create
+def create_publisher_whith_create():
+    publisher_properties = {
+      "nombre": str,
+      "fundacion": str,  
+      "pais": str,
+      "sitio_web": str
+    }
+    publisher_data = request_data(publisher_properties)
+    create_node(["DISTRIBUIDORA"], **publisher_data)
+
+# opcion 3 actualizar publisher
 def update_publisher():
     publisher_properties = {
       "nombre": str,
@@ -34,6 +40,7 @@ def update_publisher():
     else:
         print("Distribuidora no encontrada.")
 
+# opcion 4 eliminar publisher
 def delete_publisher():
     publisher_name = input("Introduzca el nombre de la distribuidora que desea eliminar: ")
     publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
@@ -42,6 +49,7 @@ def delete_publisher():
     else:
         print("Distribuidora no encontrada.")
 
+# opcion 5 agregar propiedades a publisher
 def add_properties_to_publisher():
     # pregunta por el nombre de la distribuidora
     publisher_name = input("Introduzca el nombre de la distribuidora a la que desea agregar propiedades: ")
@@ -53,6 +61,7 @@ def add_properties_to_publisher():
         properties = dict(item.split(":") for item in input_properties.split(","))
         add_properties_for_node(NodeMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, **properties)
 
+# opcion 6 agregar propiedades a multiples publishers
 def add_properties_to_multiple_publishers():
     # pregunta por los nombres de las distribuidoras
     publisher_names = input("Introduzca los nombres de las distribuidoras a las que desea agregar propiedades separadas por comas: ")
@@ -72,6 +81,83 @@ def add_properties_to_multiple_publishers():
         for publisher_node in publisher_nodes:
             add_properties_for_node(NodeMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_node["d"]["nombre"], **properties)
 
+# opcion 7 actualizar propiedades de un publisher
+def update_properties_for_publisher():
+    publisher_name = input("Introduzca el nombre de la distribuidora que desea actualizar: ")
+    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
+    # obtener las propiedades actuales de la distribuidora
+    if publisher_node:
+        current_properties = dict(publisher_node)
+        print("Propiedades actuales:")
+        for key, value in current_properties.items():
+            print(f"{key}: {value}")
+        # solicitar las propiedades a actualizar
+        input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
+        properties = dict(item.split(":") for item in input_properties.split(","))
+        # actualizar las propiedades
+        update_node_properties("DISTRIBUIDORA", "nombre", publisher_name, **properties)
+
+# opcion 8 actualizar propiedades de multiples publishers
+def update_properties_for_multiple_publishers():
+    # Solicitar los nombres de las distribuidoras
+    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea actualizar propiedades, separados por comas: ")
+    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+
+    # Solicitar las propiedades a actualizar
+    properties_input = input("Introduzca las propiedades a actualizar en formato clave:valor, separadas por comas: ")
+    properties = dict(item.split(":") for item in properties_input.split(","))
+
+    # Para cada distribuidora, actualizar las propiedades especificadas
+    for publisher_name in publisher_names:
+        update_node_properties("DISTRIBUIDORA", "nombre", publisher_name, **properties)
+
+# opcion 9 eliminar propiedades de un publisher
+def delete_properties_from_publisher():
+    # Solicitar el nombre de la distribuidora
+    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea eliminar propiedades: ")
+
+    # Solicitar las propiedades a eliminar
+    properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+    properties = properties_input.split(",")
+
+    # Eliminar las propiedades de la distribuidora
+    delete_node_properties("DISTRIBUIDORA", "nombre", publisher_name, *properties)
+
+# opcion 10 eliminar propiedades de multiples publishers
+def delete_properties_from_multiple_publishers():
+    # Solicitar los nombres de las distribuidoras
+    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea eliminar propiedades, separados por comas: ")
+    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+
+    # Solicitar las propiedades a eliminar
+    properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+    properties = properties_input.split(",")
+
+    # Para cada distribuidora, eliminar las propiedades especificadas
+    for publisher_name in publisher_names:
+        delete_node_properties("DISTRIBUIDORA", "nombre", publisher_name, *properties)
+
+# opcion 11 crear relacion entre publisher y juego con merge
+def create_publisher_game_relationship_with_merge():
+    publisher_id = input("Introduzca el nombre de la distribuidora: ")
+    game_id = input("Introduzca el título del juego: ")
+    cant_games = int(input("Introduzca la cantidad de juegos distribuidos: "))
+    territories = input("Introduzca los territorios de distribución: ")
+    fecha_distribucion = input("Introduzca la fecha de distribución: ")
+    
+    publisher_publishes_game_with_merge(publisher_id, game_id, cant_games, territories, fecha_distribucion)
+
+# opcion 12 crear relacion entre publisher y juego con create
+def create_publisher_game_relationship_with_create():
+    publisher_id = input("Introduzca el nombre de la distribuidora: ")
+    game_id = input("Introduzca el título del juego: ")
+    cant_games = int(input("Introduzca la cantidad de juegos distribuidos: "))
+    territories = input("Introduzca los territorios de distribución: ")
+    fecha_distribucion = input("Introduzca la fecha de distribución: ")
+    
+    publisher_publishes_game(publisher_id, game_id, cant_games, territories, fecha_distribucion)
+
+# opcion 13 agregar propiedades a una relacion de la distribuidora
 def add_properties_to_publisher_relationship():
     publisher_name = input("Introduzca el nombre de la distribuidora a la que desea agregar propiedades a su relación: ")
     publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
@@ -86,132 +172,206 @@ def add_properties_to_publisher_relationship():
     else:
         print("Distribuidora no encontrada.")
 
-# opcion 7 
-def add_properties_to_publisher_game_relationships():
-    # Solicitar el nombre de la distribuidora
-    distributor_name = input("Introduzca el nombre de la distribuidora: ")
+# opcion 14 agregar propiedades a multiples relaciones de la distribuidora
+def add_properties_to_multiple_publishers():
+    # Solicitar los nombres de las distribuidoras
+    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea agregar propiedades a sus relaciones, separados por comas: ")
+    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
 
-    # Solicitar los títulos de los juegos
-    games_input = input("Introduzca los títulos de los juegos a los que desea agregar propiedades, separados por comas: ")
-    games = games_input.split(",")
+    # Solicitar el tipo de relación
+    relationship_type = input("Introduzca el tipo de relación: ")
+
+    # Solicitar la etiqueta del nodo final
+    end_node_label = input("Introduzca la etiqueta del nodo final: ")
+
+    # Solicitar el nombre de la propiedad del nodo final
+    end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
+
+    # Solicitar el valor de la propiedad del nodo final
+    end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
 
     # Solicitar las propiedades a agregar
     properties_input = input("Introduzca las propiedades a agregar en formato clave:valor, separadas por comas: ")
     properties = dict(item.split(":") for item in properties_input.split(","))
 
-    # Verificar si la distribuidora existe
-    query = (
-        "MATCH (d:DISTRIBUIDORA) "
-        f"WHERE d.nombre = '{distributor_name}' "
-        "RETURN d"
-    )
-    distributor_node = graph.run(query).data()
+    # Para cada distribuidora, agregar las propiedades a la relación con el nodo final
+    for publisher_name in publisher_names:
+        add_properties_for_relation(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
 
-    # Si la distribuidora existe
-    if distributor_node:
-        # Para cada juego, agregar las propiedades a la relación con la distribuidora
-        for game_title in games:
-            query = (
-                f"MATCH (:DISTRIBUIDORA {{nombre: '{distributor_name}'}})-[r:DISTRIBUYE]->(:JUEGO {{titulo: '{game_title}'}}) "
-                "SET r += $properties"
-            )
-            graph.run(query, properties=properties)
+# opcion 15 actualizar propiedades de una relacion de la distribuidora
+def update_properties_for_publisher_relationship():
+    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea actualizar propiedades de su relación: ")
+    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
+    # obtener las propiedades actuales de la relación
+    if publisher_node:
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_node_label = input("Introduzca la etiqueta del nodo final: ")
+        end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
+        end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
+        relation = graph.match(nodes=(publisher_node, None), r_type=relationship_type, r_nodes=(None, end_node_label)).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
+        if relation:
+            current_properties = dict(relation)
+            print("Propiedades actuales:")
+            for key, value in current_properties.items():
+                print(f"{key}: {value}")
+            # solicitar las propiedades a actualizar
+            input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
+            properties = dict(item.split(":") for item in input_properties.split(","))
+            # actualizar las propiedades
+            update_relation_properties(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
+        else:
+            print("Relación no encontrada.")
 
-# opcion 9
-def delete_properties_from_publishers():
+# opcion 16 actualizar propiedades de multiples relaciones de la distribuidora
+def update_properties_for_multiple_publishers():
     # Solicitar los nombres de las distribuidoras
-    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea eliminar propiedades, separados por comas: ")
+    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea actualizar propiedades de sus relaciones, separados por comas: ")
     publisher_names = [name.strip() for name in publisher_names_input.split(",")]
 
-    # Solicitar las propiedades a eliminar
-    properties_input = input("Introduzca las propiedades a eliminar en formato clave, separadas por comas: ")
-    properties = properties_input.split(",")
+    # Solicitar el tipo de relación
+    relationship_type = input("Introduzca el tipo de relación: ")
 
-    # Para cada distribuidora, eliminar las propiedades especificadas
+    # Solicitar la etiqueta del nodo final
+    end_node_label = input("Introduzca la etiqueta del nodo final: ")
+
+    # Solicitar el nombre de la propiedad del nodo final
+    end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
+
+    # Solicitar el valor de la propiedad del nodo final
+    end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
+
+    # Solicitar las propiedades a actualizar
+    properties_input = input("Introduzca las propiedades a actualizar en formato clave:valor, separadas por comas: ")
+    properties = dict(item.split(":") for item in properties_input.split(","))
+
+    # Para cada distribuidora, actualizar las propiedades de la relación con el nodo final
     for publisher_name in publisher_names:
-        query = (
-            f"MATCH (d:DISTRIBUIDORA {{nombre: '{publisher_name}'}}) "
-            f"REMOVE {', '.join([f'd.{prop}' for prop in properties])}"
-        )
-        graph.run(query)
+        update_relation_properties(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
 
-# opcion 11
-def delete_properties_from_publisher_game_relationships():
-    # Solicitar el nombre de la distribuidora
-    distributor_name = input("Introduzca el nombre de la distribuidora: ")
 
-    # Solicitar los títulos de los juegos
-    games_input = input("Introduzca los títulos de los juegos a los que desea eliminar propiedades, separados por comas: ")
-    games = games_input.split(",")
+def delete_relation_properties_remove(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):   
+    start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
+    end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
+    relation = Relationship(start_node, relationship_type, end_node)
+    query = (
+        f"MATCH (n:{start_node_label} {{ {start_node_property_name}: '{start_node_property_value}' }})-[r:{relationship_type}]->(m:{end_node_label} {{ {end_node_property_name}: '{end_node_property_value}' }}) "
+        f"REMOVE {', '.join([f'r.{prop}' for prop in properties])}"
+    )
+    graph.run(query)
+
+# opcion 17 eliminar propiedades de una relacion de la distribuidora
+def delete_properties_for_publisher_relationship():
+    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea eliminar propiedades de su relación: ")
+    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
+    # obtener las propiedades actuales de la relación
+    if publisher_node:
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_node_label = input("Introduzca la etiqueta del nodo final: ")
+        end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
+        end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
+        properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+        properties = properties_input.split(",")
+        delete_relation_properties_remove(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties)
+    else:
+        print("Distribuidora no encontrada.")
+
+# opcion 18 eliminar propiedades de multiples relaciones de la distribuidora
+def delete_properties_for_multiple_publishers_relationship():
+    # Solicitar los nombres de las distribuidoras
+    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea eliminar propiedades de sus relaciones, separados por comas: ")
+    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+
+    # Solicitar el tipo de relación
+    relationship_type = input("Introduzca el tipo de relación: ")
+
+    # Solicitar la etiqueta del nodo final
+    end_node_label = input("Introduzca la etiqueta del nodo final: ")
+
+    # Solicitar el nombre de la propiedad del nodo final
+    end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
+
+    # Solicitar el valor de la propiedad del nodo final
+    end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
 
     # Solicitar las propiedades a eliminar
-    properties_input = input("Introduzca las propiedades a eliminar en formato clave, separadas por comas: ")
+    properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
     properties = properties_input.split(",")
 
-    # Verificar si la distribuidora existe
-    query = (
-        "MATCH (d:DISTRIBUIDORA) "
-        f"WHERE d.nombre = '{distributor_name}' "
-        "RETURN d"
-    )
-    distributor_node = graph.run(query).data()
+    # Para cada distribuidora, eliminar las propiedades de la relación con el nodo final
+    for publisher_name in publisher_names:
+        delete_relation_properties_remove(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties)
 
-    # Si la distribuidora existe
-    if distributor_node:
-        # Para cada juego, eliminar las propiedades de la relación con la distribuidora
-        for game_title in games:
-            query = (
-                f"MATCH (:DISTRIBUIDORA {{nombre: '{distributor_name}'}})-[r:DISTRIBUYE]->(:JUEGO {{titulo: '{game_title}'}}) "
-                f"REMOVE {', '.join([f'r.{prop}' for prop in properties])}"
-            )
-            graph.run(query)
+# opcion 19 ver distribuidoras
+def show_publishers():
+    publishers = graph.nodes.match("DISTRIBUIDORA")
+    for publisher in publishers:
+        print(dict(publisher))
+       
 
 def menu_distribuidora():
     print("Menú de Distribuidora:")
-    print("1. Crear Distribuidora")
-    print("2. Actualizar Distribuidora")
-    print("3. Eliminar Distribuidora")
-    print("4. Agregar 1 o mas propiedades a una distribuidora")
-    print("5. Agregar 1 o mas propiedades a multiples distribuidoras")
-    print("6. Agregar 1 o mas propiedades a una relacion de la distribuidora")
-    print("7. Agregar 1 o mas propiedades a multiples relaciones de la distribuidora")
-    print("8. Eliminar 1 o mas propiedades de una distribuidora")
-    print("9. Eliminar 1 o mas propiedades de multiples distribuidoras")
-    print("10. Eliminar 1 o mas propiedades de una relacion de la distribuidora")
-    print("11. Eliminar 1 o mas propiedades de multiples relaciones de la distribuidora")
-    print("12. Ver Distribuidoras")
-    print("13. Regresar")
+    print("1. Crear distribuidora por medio de la operacion merge")
+    print("2. Crear distribuidora por medio de la operacion create")
+    print("3. Actualizar Distribuidora")
+    print("4. Eliminar Distribuidora")
+    print("5. Agregar 1 o mas propiedades a una distribuidor")
+    print("6. Agregar 1 o mas propiedades a multiples distribuidores")
+    print("7. Actualizar 1 o más propiedades de un distribuidor")
+    print("8. Actualizar 1 o más propiedades de múltiples distribuidores")
+    print("9. Eliminar 1 o mas propiedades de una distribuidora")
+    print("10. Eliminar 1 o mas propiedades de multiples distribuidoras")
+    print("11. Crear una relacion entre una distribuidora y un juego por medio de la operacion merge")
+    print("12. Crear una relacion entre una distribuidora y un juego por medio de la operacion create")
+    print("13. Agregar 1 o mas propiedades a una relacion de la distribuidora")
+    print("14. Agregar 1 o mas propiedades a multiples relaciones de la distribuidora")
+    print("15. Actualizar 1 o más propiedades de una relacion de la distribuidora")
+    print("16. Actualizar 1 o más propiedades de múltiples relaciones de la distribuidora")
+    print("17. Eliminar 1 o mas propiedades de una relacion de la distribuidora")
+    print("18. Eliminar 1 o mas propiedades de multiples relaciones de la distribuidora")
+    print("19. Ver Distribuidoras")
+    print("20. Regresar")
     
     choice = input("Por favor, seleccione una opción: ")
     
-    if choice == "1":
-        print("\n\n----Creando Distribuidora----")
-    
-        create_publisher()
-        
+    if choice == "1": 
+        create_publisher_whith_merge()
     elif choice == "2":
-        update_publisher()
+        create_publisher_whith_create()
     elif choice == "3":
-        delete_publisher()
+        update_publisher()
     elif choice == "4":
-        add_properties_to_publisher()
+        delete_publisher()
     elif choice == "5":
-        add_properties_to_multiple_publishers()
+        add_properties_to_publisher()
     elif choice == "6":
-        add_properties_to_publisher_relationship()
+        add_properties_to_multiple_publishers()
     elif choice == "7":
-        add_properties_to_publisher_game_relationships()
+        update_properties_for_publisher()
     elif choice == "8":
-        delete_properties_from_publisher()
+        update_properties_for_multiple_publishers()
     elif choice == "9":
-        delete_properties_from_publishers()
+        delete_properties_from_publisher()
     elif choice == "10":
-        delete_properties_from_publisher_relationship()
+        delete_properties_from_multiple_publishers()
     elif choice == "11":
-        delete_properties_from_publisher_game_relationships()
+        create_publisher_game_relationship_with_merge()
     elif choice == "12":
-        view_publishers()
+        create_publisher_game_relationship_with_create()
     elif choice == "13":
+        add_properties_to_publisher_relationship()
+    elif choice == "14":
+        add_properties_to_multiple_publishers()
+    elif choice == "15":
+        update_properties_for_publisher_relationship()
+    elif choice == "16":
+        update_properties_for_multiple_publishers()
+    elif choice == "17":
+        delete_properties_for_publisher_relationship()
+    elif choice == "18":
+        delete_properties_for_multiple_publishers_relationship()
+    elif choice == "19":
+        show_publishers()
+    elif choice == "20":
         return
     else:
         print("Opción inválida. Por favor, seleccione una opción válida.")

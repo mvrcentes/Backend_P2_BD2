@@ -74,12 +74,22 @@ def update_multiple_node_properties(label, property_name, property_value, **prop
         graph.push(node)
 
 #Operación que permita eliminar 1 o mas propiedades de un nodo
+#def delete_node_properties(label, property_name, property_value, *properties):
+#    matcher = NodeMatcher(graph)
+#    node = matcher.match(label).where(f"_.{property_name} = '{property_value}'").first()
+#    for prop in properties:
+#        del node[prop]
+#    graph.push(node)
+
 def delete_node_properties(label, property_name, property_value, *properties):
     matcher = NodeMatcher(graph)
     node = matcher.match(label).where(f"_.{property_name} = '{property_value}'").first()
-    for prop in properties:
-        del node[prop]
-    graph.push(node)
+    if node:
+        query = (
+            f"MATCH (n:{label} {{ {property_name}: '{property_value}' }}) "
+            f"REMOVE {', '.join([f'n.{prop}' for prop in properties])}"
+        )
+        graph.run(query)
 
 #Operación que permita eliminar 1 o más propiedades de múltiples nodos al mismo tiempo
 def delete_multiple_node_properties(label, property_name, property_value, *properties):
@@ -126,14 +136,25 @@ def update_multiple_relation_properties(matcher, start_node_label, start_node_pr
                 relation[prop] = value
             graph.push(relation)
 
-#Operación que permita eliminar 1 o más propiedades de una relación
-def delete_relation_properties(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):
+# #Operación que permita eliminar 1 o más propiedades de una relación
+# def delete_relation_properties(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):
+#     start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
+#     end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
+#     relation = Relationship(start_node, relationship_type, end_node)
+#     for prop in properties:
+#         del relation[prop]
+#     graph.push(relation)
+
+#Operación que permita eliminar 1 o más propiedades de una relación usa remove
+def delete_relation_properties(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):   
     start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
     end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
     relation = Relationship(start_node, relationship_type, end_node)
-    for prop in properties:
-        del relation[prop]
-    graph.push(relation)
+    query = (
+        f"MATCH (n:{start_node_label} {{ {start_node_property_name}: '{start_node_property_value}' }})-[r:{relationship_type}]->(m:{end_node_label} {{ {end_node_property_name}: '{end_node_property_value}' }}) "
+        f"REMOVE {', '.join([f'r.{prop}' for prop in properties])}"
+    )
+    graph.run(query)
 
 #Operación que permita eliminar 1 o más propiedades de múltiples relaciones al mismo tiempo
 def delete_multiple_relation_properties(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):
