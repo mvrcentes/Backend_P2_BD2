@@ -308,27 +308,27 @@ def show_publishers():
         print(dict(publisher))
        
 
-def menu_distribuidora():
-    print("Menú de Distribuidora:")
-    print("1. Crear distribuidora por medio de la operacion merge")
-    print("2. Crear distribuidora por medio de la operacion create")
-    print("3. Actualizar Distribuidora")
-    print("4. Eliminar Distribuidora")
-    print("5. Agregar 1 o mas propiedades a una distribuidor")
-    print("6. Agregar 1 o mas propiedades a multiples distribuidores")
-    print("7. Actualizar 1 o más propiedades de un distribuidor")
-    print("8. Actualizar 1 o más propiedades de múltiples distribuidores")
-    print("9. Eliminar 1 o mas propiedades de una distribuidora")
-    print("10. Eliminar 1 o mas propiedades de multiples distribuidoras")
-    print("11. Crear una relacion entre una distribuidora y un juego por medio de la operacion merge")
-    print("12. Crear una relacion entre una distribuidora y un juego por medio de la operacion create")
-    print("13. Agregar 1 o mas propiedades a una relacion de la distribuidora")
-    print("14. Agregar 1 o mas propiedades a multiples relaciones de la distribuidora")
-    print("15. Actualizar 1 o más propiedades de una relacion de la distribuidora")
-    print("16. Actualizar 1 o más propiedades de múltiples relaciones de la distribuidora")
-    print("17. Eliminar 1 o mas propiedades de una relacion de la distribuidora")
-    print("18. Eliminar 1 o mas propiedades de multiples relaciones de la distribuidora")
-    print("19. Ver Distribuidoras")
+def menu_modify(menu_type):
+    print(f"Menú de {menu_type}:")
+    print(f"1. Crear {menu_type} por medio de la operacion merge")
+    print(f"2. Crear {menu_type} por medio de la operacion create")
+    print(f"3. Actualizar {menu_type}")
+    print(f"4. Eliminar {menu_type}")
+    print(f"5. Agregar 1 o mas propiedades a una {menu_type}")
+    print(f"6. Agregar 1 o mas propiedades a multiples {menu_type}")
+    print(f"7. Actualizar 1 o más propiedades de un {menu_type}")
+    print(f"8. Actualizar 1 o más propiedades de múltiples {menu_type}")
+    print(f"9. Eliminar 1 o mas propiedades de una {menu_type}")
+    print(f"10. Eliminar 1 o mas propiedades de multiples {menu_type}")
+    print(f"11. Crear una relacion entre una {menu_type} y un juego por medio de la operacion merge")
+    print(f"12. Crear una relacion entre una {menu_type} y un juego por medio de la operacion create")
+    print(f"13. Agregar 1 o mas propiedades a una relacion de la {menu_type}")
+    print(f"14. Agregar 1 o mas propiedades a multiples relaciones de la {menu_type}")
+    print(f"15. Actualizar 1 o más propiedades de una relacion de la {menu_type}")
+    print(f"16. Actualizar 1 o más propiedades de múltiples relaciones de la {menu_type}")
+    print(f"17. Eliminar 1 o mas propiedades de una relacion de la {menu_type}")
+    print(f"18. Eliminar 1 o mas propiedades de multiples relaciones de la {menu_type}")
+    print(f"19. Ver {menu_type}")
     print("20. Regresar")
     
     choice = input("Por favor, seleccione una opción: ")
@@ -379,7 +379,17 @@ def menu_distribuidora():
 
 
 def admin_menu():
-
+    menu_choices = {
+        "1": "distribuidoras",
+        "2": "juegos",
+        "3": "guias",
+        "4": "usuarios",
+        "5": "plataformas",
+        "6": "reseñas",
+        "7": "generos",
+        "8": "salir"
+    }
+    
     while True:
         print("\nMenú de Administrador:")
         print("1. Menú de Distribuidora")
@@ -393,22 +403,11 @@ def admin_menu():
         
         choice = input("Por favor, seleccione una opción: ")
         
-        if choice == "1":
-            menu_distribuidora()
-        elif choice == "2":
-            menu_juegos()
-        elif choice == "3":
-            menu_guia_juegos()
-        elif choice == "4":
-            menu_usuarios()
-        elif choice == "5":
-            menu_plataformas()
-        elif choice == "6":
-            menu_resenas()
-        elif choice == "7":
-            menu_generos()
-        elif choice == "8":
-            print("Saliendo del sistema.")
-            return
+        if choice in menu_choices:
+            if menu_choices[choice] == "salir":
+                print("Saliendo del sistema.")
+                return
+            else:
+                menu_modify(menu_choices[choice])
         else:
             print("Opción inválida. Por favor, seleccione una opción válida.")
