@@ -64,25 +64,6 @@ def delete_relation(relation):
     graph.separate(relation)
 
 
-#Operación que permita agregar 1 o más propiedades a una relación
-def add_properties_for_relation(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties):
-    start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
-    end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
-    
-    if start_node is None or end_node is None:
-        raise ValueError("Start or end node not found.")
-    
-    relation = Relationship(start_node, relationship_type, end_node, **properties)
-    graph.push(relation)
-
-#Operación que permita realizar la actualización de 1 o más propiedades de la relación
-def update_relation_properties(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties):
-    start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
-    end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
-    relation = Relationship(start_node, relationship_type, end_node)
-    for prop, value in properties.items():
-        relation[prop] = value
-    graph.push(relation)
 
 # #Operación que permita eliminar 1 o más propiedades de una relación
 def delete_relation_properties(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):   
