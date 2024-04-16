@@ -218,26 +218,44 @@ def delete_relationship(entity_type, entity_key, relation_types):
 
 # opcion 15 agregar propiedades a una relacion
 def add_properties_relationship(entity_type, entity_key, relation_types):
-    matcher = NodeMatcher(graph)
-    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea agregar propiedades a su relación: ")
-    start_entity_node = matcher.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
-    
+    # Solicitar el nombre de la distribuidora
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()}: ")
+
+    # Verificar si la distribuidora existe
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} = '{entity_name}' "
+        "RETURN e"
+    )
+    start_entity_node = graph.run(query).data()
+
     if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea agregar propiedades a su relación: ")
-        end_entity_node = matcher.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        
+        relationship_choice = input("Introduzca el tipo de relación: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_name = input(f"Introduzca el nombre de {end_node_label} con la que desea agregar propiedades a su relación: ")
+
+        query = (
+            f"MATCH (e:{end_node_label}) "
+            f"WHERE e.{end_node_key} = '{end_entity_name}' "
+            "RETURN e"
+        )
+        end_entity_node = graph.run(query).data()
+    
         if end_entity_node:
             input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
             properties = dict(item.split(":") for item in input_properties.split(","))
-            add_properties_for_relation(matcher, entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
-        else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
-    else:
-        print(f"{entity_type} no encontrada.")
+
+            query = (
+                f"MATCH (:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->(:{end_node_label} {{{end_node_key}: '{end_entity_name}'}}) "
+                "SET r += $properties"
+            )
+            graph.run(query, properties=properties)
 
 # opcion 16 agregar propiedades a multiples relaciones
 def add_properties_to_multiple_relationships(entity_type, entity_key, relation_types):
@@ -550,25 +568,25 @@ def menu_modify(menu_type):
     while True:
         print(f"\nMenú de {menu_type}:")
         print("1. Crear {} por medio de la operacion merge".format(entity_type))
-        print("2. Crear {} por medio de la operacion create".format(entity_type))
+        print("2. Crear {} por medio de la operacion create\n".format(entity_type))
         print("3. Actualizar {}".format(entity_type))
-        print("4. Eliminar {}".format(entity_type))
+        print("4. Eliminar {}\n".format(entity_type))
         print("5. Agregar 1 o mas propiedades a una {}".format(entity_type))
-        print("6. Agregar 1 o mas propiedades a multiples {}".format(entity_type))
+        print("6. Agregar 1 o mas propiedades a multiples {}\n".format(entity_type))
         print("7. Actualizar 1 o más propiedades de un {}".format(entity_type))
-        print("8. Actualizar 1 o más propiedades de múltiples {}".format(entity_type))
+        print("8. Actualizar 1 o más propiedades de múltiples {}\n".format(entity_type))
         print("9. Eliminar 1 o mas propiedades de una {}".format(entity_type))
-        print("10. Eliminar 1 o mas propiedades de multiples {}".format(entity_type))
+        print("10. Eliminar 1 o mas propiedades de multiples {}\n".format(entity_type))
         print("11. Crear una relacion de una {} por medio de la operacion merge".format(entity_type))
-        print("12. Crear una relacion entre una {} por medio de la operacion create".format(entity_type))
+        print("12. Crear una relacion entre una {} por medio de la operacion create\n".format(entity_type))
         print("13. Acctualizar una relacion de una {}".format(entity_type))
-        print("14. Eliminar una relacion de una {}".format(entity_type))
+        print("14. Eliminar una relacion de una {}\n".format(entity_type))
         print("15. Agregar 1 o mas propiedades a una relacion de la {}".format(entity_type))
-        print("16. Agregar 1 o mas propiedades a multiples relaciones de la {}".format(entity_type))
+        print("16. Agregar 1 o mas propiedades a multiples relaciones de la {}\n".format(entity_type))
         print("17. Actualizar 1 o más propiedades de una relacion de la {}".format(entity_type))
-        print("18. Actualizar 1 o más propiedades de múltiples relaciones de la {}".format(entity_type))
+        print("18. Actualizar 1 o más propiedades de múltiples relaciones de la {}\n".format(entity_type))
         print("19. Eliminar 1 o mas propiedades de una relacion de la {}".format(entity_type))
-        print("20. Eliminar 1 o mas propiedades de multiples relaciones de la {}".format(entity_type))
+        print("20. Eliminar 1 o mas propiedades de multiples relaciones de la {}\n".format(entity_type))
         print("21. Ver {}".format(entity_type))
         print("22. Regresar")
 

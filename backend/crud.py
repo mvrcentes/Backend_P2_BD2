@@ -95,9 +95,6 @@ def delete_relation_properties(matcher, start_node_label, start_node_property_na
     )
     graph.run(query)
 
-
-
-
 def request_data(properties):
     data = {}
     for prop, datatype in properties.items():
