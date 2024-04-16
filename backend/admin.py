@@ -1,7 +1,7 @@
 from crud import *
 from nodes_relationships import *
 
-# opcion 1 crear publisher con merge
+# opcion 1 crear una entidad con merge
 def merge_entity(entity_properties, entity_labels):
     # check if property nombre exists
     if "nombre" not in entity_properties:
@@ -13,12 +13,12 @@ def merge_entity(entity_properties, entity_labels):
     entity_data = request_data(entity_properties)
     merge_node(entity_labels, entity_key, entity_value, **entity_data)
 
-# opcion 2 crear publisher con create
+# opcion 2 crear una entidad con create
 def create_entity(entity_properties, entity_labels):
     entity_data = request_data(entity_properties)
     create_node(entity_labels, **entity_data)
 
-# opcion 3 actualizar publisher
+# opcion 3 actualizar una entidad
 def update_entity(entity_properties, entity_labels, entity_type, entity_key):
     entity_name = input(f"Introduzca el nombre de la {entity_type.lower()} que desea actualizar: ")
     entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
@@ -29,7 +29,7 @@ def update_entity(entity_properties, entity_labels, entity_type, entity_key):
     else:
         print(f"{entity_type} no encontrada.")
 
-# opcion 4 eliminar publisher
+# opcion 4 eliminar una entidad
 def delete_entity(entity_type, entity_key):
     entity_name = input(f"Introduzca el nombre de {entity_type.lower()} que desea eliminar: ")
     entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
@@ -38,7 +38,7 @@ def delete_entity(entity_type, entity_key):
     else:
         print("Distribuidora no encontrada.")
 
-# opcion 5 agregar propiedades a publisher
+# opcion 5 agregar propiedades a una entidad
 def add_properties_entity(entity_type, entity_key):
     # pregunta por el nombre de la distribuidora
     entity_name = input(f"Introduzca el nombre de {entity_type.lower()} a la que desea agregar propiedades: ")
@@ -50,7 +50,7 @@ def add_properties_entity(entity_type, entity_key):
         properties = dict(item.split(":") for item in input_properties.split(","))
         add_properties_for_node(NodeMatcher(graph), entity_type, entity_key, entity_name, **properties)
 
-# opcion 6 agregar propiedades a multiples publishers
+# opcion 6 agregar propiedades a multiples entidades
 def add_properties_multiple_entities(entity_type, entity_key):
     entity_names = input(f"Introduzca los nombres de {entity_type.lower()} a las que desea agregar propiedades separadas por comas: ")
     entity_names_list = [f"'{name.strip()}'" for name in entity_names.split(",")]
@@ -69,7 +69,7 @@ def add_properties_multiple_entities(entity_type, entity_key):
         for entity_node in entity_nodes:
             add_properties_for_node(NodeMatcher(graph), entity_type, entity_key, entity_node["e"][entity_key], **properties)
 
-# opcion 7 actualizar propiedades de un publisher
+# opcion 7 actualizar propiedades de una entidad
 def update_properties_entity(entity_type, entity_labels, entity_key):
     entity_name = input(f"Introduzca el nombre de {entity_type.lower()} que desea actualizar: ")
     entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
@@ -85,7 +85,7 @@ def update_properties_entity(entity_type, entity_labels, entity_key):
         # actualizar las propiedades
         update_node_properties(entity_labels, entity_key, entity_name, **properties)
 
-# opcion 8 actualizar propiedades de multiples publishers
+# opcion 8 actualizar propiedades de multiples entidades
 def update_properties_multiple(entity_type, entity_labels, entity_key):
     # Solicitar los nombres de las distribuidoras
     entity_names_input = input(f"Introduzca los nombres de {entity_type.lower()} a las que desea actualizar propiedades, separados por comas: ")
@@ -99,7 +99,7 @@ def update_properties_multiple(entity_type, entity_labels, entity_key):
     for entity_name in entity_names:
         update_node_properties(entity_labels, entity_key, entity_name, **properties)
 
-# opcion 9 eliminar propiedades de un publisher
+# opcion 9 eliminar propiedades de una entidad
 def delete_properties_entity(entity_type, entity_key):
     # Solicitar el nombre de la distribuidora
     entity_name = input(f"Introduzca el nombre de {entity_type.lower()} a la que desea eliminar propiedades: ")
@@ -111,7 +111,7 @@ def delete_properties_entity(entity_type, entity_key):
     # Eliminar las propiedades de la distribuidora
     delete_node_properties(entity_type, entity_key, entity_name, *properties)
 
-# opcion 10 eliminar propiedades de multiples publishers
+# opcion 10 eliminar propiedades de multiples entidades
 def delete_properties_multiple(entity_type, entity_key):
     # Solicitar los nombres de las distribuidoras
     entity_names = input(f"Introduzca los nombres de {entity_type.lower()} a las que desea eliminar propiedades, separados por comas: ")
@@ -125,176 +125,278 @@ def delete_properties_multiple(entity_type, entity_key):
     for entity_name in entity_names_list:
         delete_node_properties(entity_type, entity_key, entity_name, *properties)
 
-# opcion 11 crear relacion entre publisher y juego con merge
-def create_publisher_game_relationship_with_merge():
-    publisher_id = input("Introduzca el nombre de la distribuidora: ")
-    game_id = input("Introduzca el título del juego: ")
-    cant_games = int(input("Introduzca la cantidad de juegos distribuidos: "))
-    territories = input("Introduzca los territorios de distribución: ")
-    fecha_distribucion = input("Introduzca la fecha de distribución: ")
-    
-    publisher_publishes_game_with_merge(publisher_id, game_id, cant_games, territories, fecha_distribucion)
-
-# opcion 12 crear relacion entre publisher y juego con create
-def create_publisher_game_relationship_with_create():
-    publisher_id = input("Introduzca el nombre de la distribuidora: ")
-    game_id = input("Introduzca el título del juego: ")
-    cant_games = int(input("Introduzca la cantidad de juegos distribuidos: "))
-    territories = input("Introduzca los territorios de distribución: ")
-    fecha_distribucion = input("Introduzca la fecha de distribución: ")
-    
-    publisher_publishes_game(publisher_id, game_id, cant_games, territories, fecha_distribucion)
-
-# opcion 13 agregar propiedades a una relacion de la distribuidora
-def add_properties_to_publisher_relationship():
-    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea agregar propiedades a su relación: ")
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
-    if publisher_node:
+# opcion 11 crear relacion utilizando merge
+def create_relationship_with_merge(entity_type, entity_key, relation_types):
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} que desea crear la relación: ")
+    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+    # si la entidad existe mustra las opciones de relaciones
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
         relationship_type = input("Introduzca el tipo de relación: ")
-        end_node_label = input("Introduzca la etiqueta del nodo final: ")
-        end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
-        end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
-        input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
-        properties = dict(item.split(":") for item in input_properties.split(","))
-        add_properties_for_relation(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea crear la relación: ")
+        # busca si la entidad final existe ustado el enty_key
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        # si la entidad final existe crea la relación
+        if end_entity_node:
+            properties = request_data(relation_types[relationship_type]["propiedades"])
+            merge_relation(start_entity_node, relation_types[relationship_type]["tipo_relacion"], end_entity_node, **properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
     else:
-        print("Distribuidora no encontrada.")
+        print(f"{entity_type} no encontrada.")
 
-# opcion 14 agregar propiedades a multiples relaciones de la distribuidora
-def add_properties_to_multiple_publishers():
-    # Solicitar los nombres de las distribuidoras
-    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea agregar propiedades a sus relaciones, separados por comas: ")
-    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
-
-    # Solicitar el tipo de relación
-    relationship_type = input("Introduzca el tipo de relación: ")
-
-    # Solicitar la etiqueta del nodo final
-    end_node_label = input("Introduzca la etiqueta del nodo final: ")
-
-    # Solicitar el nombre de la propiedad del nodo final
-    end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
-
-    # Solicitar el valor de la propiedad del nodo final
-    end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
-
-    # Solicitar las propiedades a agregar
-    properties_input = input("Introduzca las propiedades a agregar en formato clave:valor, separadas por comas: ")
-    properties = dict(item.split(":") for item in properties_input.split(","))
-
-    # Para cada distribuidora, agregar las propiedades a la relación con el nodo final
-    for publisher_name in publisher_names:
-        add_properties_for_relation(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
-
-# opcion 15 actualizar propiedades de una relacion de la distribuidora
-def update_properties_for_publisher_relationship():
-    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea actualizar propiedades de su relación: ")
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
-    # obtener las propiedades actuales de la relación
-    if publisher_node:
+# opcion 12 crear relacion utilizando create
+def create_relationship_with_create(entity_type, entity_key, relation_types):
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} que desea crear la relación: ")
+    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+    # si la entidad existe mustra las opciones de relaciones
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
         relationship_type = input("Introduzca el tipo de relación: ")
-        end_node_label = input("Introduzca la etiqueta del nodo final: ")
-        end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
-        end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
-        relation = graph.match(nodes=(publisher_node, None), r_type=relationship_type, r_nodes=(None, end_node_label)).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
-        if relation:
-            current_properties = dict(relation)
-            print("Propiedades actuales:")
-            for key, value in current_properties.items():
-                print(f"{key}: {value}")
-            # solicitar las propiedades a actualizar
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea crear la relación: ")
+        # busca si la entidad final existe ustado el enty_key
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        # si la entidad final existe crea la relación
+        if end_entity_node:
+            properties = request_data(relation_types[relationship_type]["propiedades"])
+            create_relation(start_entity_node, relation_types[relationship_type]["tipo_relacion"], end_entity_node, **properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
+
+# opcion 13 actualizar relacion
+def update_relationship(entity_type, entity_key, relation_types):
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} que desea actualizar la relación: ")
+    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+    # si la entidad existe mustra las opciones de relaciones
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea actualizar la relación: ")
+        # busca si la entidad final existe ustado el enty_key
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        # si la entidad final existe crea la relación
+        if end_entity_node:
+            properties = request_data(relation_types[relationship_type]["propiedades"])
+            merge_relation(start_entity_node, relation_types[relationship_type]["tipo_relacion"], end_entity_node, **properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
+
+# opcion 14 eliminar relacion
+def delete_relationship(entity_type, entity_key, relation_types):
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} que desea eliminar la relación: ")
+    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea eliminar la relación: ")
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        if end_entity_node:
+            relations = list(graph.relationships.match(nodes=(start_entity_node, end_entity_node), r_type=relation_types[relationship_type]["tipo_relacion"]))
+            if relations:
+                for relation in relations:
+                    delete_relation(relation)
+                print("Relación(es) eliminada(s) correctamente.")
+            else:
+                print("Relación no encontrada.")
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
+
+# opcion 15 agregar propiedades a una relacion
+def add_properties_relationship(entity_type, entity_key, relation_types):
+    matcher = NodeMatcher(graph)
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea agregar propiedades a su relación: ")
+    start_entity_node = matcher.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+    
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea agregar propiedades a su relación: ")
+        end_entity_node = matcher.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        
+        if end_entity_node:
+            input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
+            properties = dict(item.split(":") for item in input_properties.split(","))
+            add_properties_for_relation(matcher, entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
+
+# opcion 16 agregar propiedades a multiples relaciones
+def add_properties_to_multiple_relationships(entity_type, entity_key, relation_types):
+    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea agregar propiedades a sus relaciones, separados por comas: ")
+    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
+
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        "RETURN e"
+    )
+    start_entity_nodes = graph.run(query).data()
+    if start_entity_nodes:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea agregar propiedades a su relación: ")
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        if end_entity_node:
+            input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
+            properties = dict(item.split(":") for item in input_properties.split(","))
+            for start_entity_node in start_entity_nodes:
+                add_properties_for_relation(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
+
+# opcion 17 actualizar propiedades de una relacion
+def update_properties_for_relationship(entity_type, entity_key, relation_types):
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea actualizar propiedades de su relación: ")
+    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+    # si la entidad existe mustra las opciones de relaciones
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea actualizar propiedades de su relación: ")
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        if end_entity_node:
+            relation = graph.match(nodes=(start_entity_node, end_entity_node), r_type=relation_types[relationship_type]["tipo_relacion"]).first()
+            if relation:
+                current_properties = dict(relation)
+                print("Propiedades actuales:")
+                for key, value in current_properties.items():
+                    print(f"{key}: {value}")
+                # solicitar las propiedades a actualizar
+                input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
+                properties = dict(item.split(":") for item in input_properties.split(","))
+                # actualizar las propiedades
+                update_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
+            else:
+                print("Relación no encontrada.")
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
+
+# opcion 18 actualizar propiedades de multiples relaciones
+def update_properties_for_multiple_relationships(entity_type, entity_key, relation_types):
+    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea actualizar propiedades de sus relaciones, separados por comas: ")
+    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
+
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        "RETURN e"
+    )
+    start_entity_nodes = graph.run(query).data()
+    if start_entity_nodes:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea actualizar propiedades de su relación: ")
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        if end_entity_node:
             input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
             properties = dict(item.split(":") for item in input_properties.split(","))
-            # actualizar las propiedades
-            update_relation_properties(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
+            for start_entity_node in start_entity_nodes:
+                update_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
         else:
-            print("Relación no encontrada.")
-
-# opcion 16 actualizar propiedades de multiples relaciones de la distribuidora
-def update_properties_for_multiple_publishers():
-    # Solicitar los nombres de las distribuidoras
-    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea actualizar propiedades de sus relaciones, separados por comas: ")
-    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
-
-    # Solicitar el tipo de relación
-    relationship_type = input("Introduzca el tipo de relación: ")
-
-    # Solicitar la etiqueta del nodo final
-    end_node_label = input("Introduzca la etiqueta del nodo final: ")
-
-    # Solicitar el nombre de la propiedad del nodo final
-    end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
-
-    # Solicitar el valor de la propiedad del nodo final
-    end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
-
-    # Solicitar las propiedades a actualizar
-    properties_input = input("Introduzca las propiedades a actualizar en formato clave:valor, separadas por comas: ")
-    properties = dict(item.split(":") for item in properties_input.split(","))
-
-    # Para cada distribuidora, actualizar las propiedades de la relación con el nodo final
-    for publisher_name in publisher_names:
-        update_relation_properties(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, **properties)
-
-
-def delete_relation_properties_remove(matcher, start_node_label, start_node_property_name, start_node_property_value, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties):   
-    start_node = matcher.match(start_node_label).where(f"_.{start_node_property_name} = '{start_node_property_value}'").first()
-    end_node = matcher.match(end_node_label).where(f"_.{end_node_property_name} = '{end_node_property_value}'").first()
-    relation = Relationship(start_node, relationship_type, end_node)
-    query = (
-        f"MATCH (n:{start_node_label} {{ {start_node_property_name}: '{start_node_property_value}' }})-[r:{relationship_type}]->(m:{end_node_label} {{ {end_node_property_name}: '{end_node_property_value}' }}) "
-        f"REMOVE {', '.join([f'r.{prop}' for prop in properties])}"
-    )
-    graph.run(query)
-
-# opcion 17 eliminar propiedades de una relacion de la distribuidora
-def delete_properties_for_publisher_relationship():
-    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea eliminar propiedades de su relación: ")
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
-    # obtener las propiedades actuales de la relación
-    if publisher_node:
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_node_label = input("Introduzca la etiqueta del nodo final: ")
-        end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
-        end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
-        properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
-        properties = properties_input.split(",")
-        delete_relation_properties_remove(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties)
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
     else:
-        print("Distribuidora no encontrada.")
+        print(f"{entity_type} no encontrada.")
 
-# opcion 18 eliminar propiedades de multiples relaciones de la distribuidora
-def delete_properties_for_multiple_publishers_relationship():
-    # Solicitar los nombres de las distribuidoras
-    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea eliminar propiedades de sus relaciones, separados por comas: ")
-    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+# opcion 19 eliminar 1 o mas propiedades de una relacion
+def delete_relationship_properties(entity_type, entity_key, relation_types):
+    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea eliminar propiedades de su relación: ")
+    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
+    # si la entidad existe mustra las opciones de relaciones
+    if start_entity_node:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea eliminar propiedades de su relación: ")
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        if end_entity_node:
+            # Solicitar las propiedades a eliminar
+            properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+            properties = properties_input.split(",")
+            # Eliminar las propiedades de la relación
+            delete_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, *properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
 
-    # Solicitar el tipo de relación
-    relationship_type = input("Introduzca el tipo de relación: ")
+# opcion 20 eliminar 1 o mas propiedades de multiples relaciones
+def delete_properties_for_multiple_relationships(entity_type, entity_key, relation_types):
+    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea eliminar propiedades de sus relaciones, separados por comas: ")
+    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
 
-    # Solicitar la etiqueta del nodo final
-    end_node_label = input("Introduzca la etiqueta del nodo final: ")
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        "RETURN e"
+    )
+    start_entity_nodes = graph.run(query).data()
+    if start_entity_nodes:
+        print("Tipos de relación disponibles:")
+        for relation_name in relation_types:
+            print(relation_name)
+        relationship_type = input("Introduzca el tipo de relación: ")
+        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea eliminar propiedades de su relación: ")
+        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
+        if end_entity_node:
+            # Solicitar las propiedades a eliminar
+            properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+            properties = properties_input.split(",")
+            for start_entity_node in start_entity_nodes:
+                delete_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, *properties)
+        else:
+            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+    else:
+        print(f"{entity_type} no encontrada.")
 
-    # Solicitar el nombre de la propiedad del nodo final
-    end_node_property_name = input("Introduzca el nombre de la propiedad del nodo final: ")
-
-    # Solicitar el valor de la propiedad del nodo final
-    end_node_property_value = input("Introduzca el valor de la propiedad del nodo final: ")
-
-    # Solicitar las propiedades a eliminar
-    properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
-    properties = properties_input.split(",")
-
-    # Para cada distribuidora, eliminar las propiedades de la relación con el nodo final
-    for publisher_name in publisher_names:
-        delete_relation_properties_remove(RelationshipMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, relationship_type, end_node_label, end_node_property_name, end_node_property_value, *properties)
-
-# opcion 19 ver distribuidoras
-def show_publishers():
-    publishers = graph.nodes.match("DISTRIBUIDORA")
-    for publisher in publishers:
-        print(dict(publisher))
+# opcion 19 ver entidades
+def show_entities(entity_type):
+    query = f"MATCH (n:{entity_type}) RETURN n"
+    entities = graph.run(query).data()
+    for entity in entities:
+        print(entity["n"])
        
+def is_operation_applicable(entity_type):
+    non_applicable_entities = {
+        "GENERO": "No aplicable para géneros debido al modelo de datos",
+        "GUIA": "No aplicable para guías debido al modelo de datos",
+        "PLATAFORMA": "No aplicable para plataformas debido al modelo de datos",
+        "REVIEW": "No aplicable para reseñas debido al modelo de datos"
+    }
+    
+    if entity_type in non_applicable_entities:
+        print(non_applicable_entities[entity_type])
+        return False
+    return True
 
 def menu_modify(menu_type):
     entity_type = menu_type.upper()
@@ -307,15 +409,38 @@ def menu_modify(menu_type):
             "lanzamiento": str,
             "plataformas": list
         }
-    elif entity_type == "GENERO":
-        entity_key = "nombre"
-        entity_labels = ["GENERO"]
-        entity_properties = {
-            "nombre": str,
-            "popularidad": int,
-            "descripcion": str,
-            "promedio_calificacion": float
-        }
+        relation_types = {
+            "pertenece_a_genero": {
+                "tipo_relacion": "PERTENECE_A",
+                "propiedades": {
+                    "fecha de lanzamiento": str,
+                    "exclusivo": bool,
+                    "calificacion_media": int
+                },
+                "nombre": "GENERO",
+                "enty_key": "nombre"
+            },
+            "tiene_guia": {
+                "tipo_relacion": "TIENE",
+                "propiedades": {
+                    "fecha de creación": str,
+                    "autor": str,
+                    "disponibilidad": bool
+                },
+                "nombre": "GUIA",
+                "enty_key": "titulo"
+            },
+            "disponible_en_plataforma": {
+                "tipo_relacion": "DISPONIBLE_EN",
+                "propiedades": {
+                    "formato fisico": str,
+                    "formato digital": bool,
+                    "edicionespecial": bool
+                },
+                "nombre": "PLATAFORMA",
+                "enty_key": "nombre"
+            }
+        }     
     elif entity_type == "REVIEW":
         entity_key = "titulo"
         entity_labels = ["REVIEW", "CRITICA"]
@@ -326,15 +451,47 @@ def menu_modify(menu_type):
             "fecha": str,
             "util": bool
         }
-    elif entity_type == "PLATAFORMA":
-        entity_key = "nombre"
-        entity_labels = ["PLATAFORMA"]
-        entity_properties = {
-            "nombre": str,
-            "fabricante": str,
-            "fecha_lanzamiento": str,
-            "disponible": bool,
-            "exclusivos": list
+        relation_types = {
+            "califica_a_juego": {
+                "tipo_relacion": "CALIFICA",
+                "propiedades": {
+                    "fecha": str,
+                    "importancia": str,
+                    "verificado": bool,
+                },
+                "nombre": "JUEGO",
+                "enty_key": "titulo"
+            },
+            "califica_a_plataforma": {
+                "tipo_relacion": "CALIFICA",
+                "propiedades": {
+                    "fecha": str,
+                    "importancia": str,
+                    "verificado": bool,
+                },
+                "nombre": "PLATAFORMA",
+                "enty_key": "nombre"
+            },
+            "califica_a_genero": {
+                "tipo_relacion": "CALIFICA",
+                "propiedades": {
+                    "fecha": str,
+                    "importancia": str,
+                    "verificado": bool,
+                },
+                "nombre": "GENERO",
+                "enty_key": "nombre"
+            },
+            "califica_a_distribuidora": {
+                "tipo_relacion": "CALIFICA",
+                "propiedades": {
+                    "fecha": str,
+                    "importancia": str,
+                    "verificado": bool,
+                },
+                "nombre": "DISTRIBUIDORA",
+                "enty_key": "nombre"
+            }  
         }
     elif entity_type == "DISTRIBUIDORA":
         entity_key = "nombre"
@@ -344,6 +501,27 @@ def menu_modify(menu_type):
             "fundacion": str,
             "pais": str,
             "sitio_web": str
+        }
+        relation_types = {
+            "distribuye_juego": {
+                "tipo_relacion": "DISTRIBUYE",
+                "propiedades": {
+                    "fecha_de_lanzamiento": str,
+                    "territorios_de distribucion": list,
+                    "cantidad_distribuida": int,
+                },
+                "nombre": "JUEGO",
+                "enty_key": "titulo"
+            }
+        }
+    elif entity_type == "GENERO":
+        entity_key = "nombre"
+        entity_labels = ["GENERO"]
+        entity_properties = {
+            "nombre": str,
+            "popularidad": int,
+            "descripcion": str,
+            "promedio_calificacion": float
         }
     elif entity_type == "GUIA":
         entity_key = "titulo"
@@ -355,6 +533,16 @@ def menu_modify(menu_type):
             "fecha_publicacion": str,
             "etiquetas": list
         }
+    elif entity_type == "PLATAFORMA":
+        entity_key = "nombre"
+        entity_labels = ["PLATAFORMA"]
+        entity_properties = {
+            "nombre": str,
+            "fabricante": str,
+            "fecha_lanzamiento": str,
+            "disponible": bool,
+            "exclusivos": list
+        }    
     else:
         print("Tipo de entidad no válido.")
         return
@@ -373,14 +561,16 @@ def menu_modify(menu_type):
         print("10. Eliminar 1 o mas propiedades de multiples {}".format(entity_type))
         print("11. Crear una relacion de una {} por medio de la operacion merge".format(entity_type))
         print("12. Crear una relacion entre una {} por medio de la operacion create".format(entity_type))
-        print("13. Agregar 1 o mas propiedades a una relacion de la {}".format(entity_type))
-        print("14. Agregar 1 o mas propiedades a multiples relaciones de la {}".format(entity_type))
-        print("15. Actualizar 1 o más propiedades de una relacion de la {}".format(entity_type))
-        print("16. Actualizar 1 o más propiedades de múltiples relaciones de la {}".format(entity_type))
-        print("17. Eliminar 1 o mas propiedades de una relacion de la {}".format(entity_type))
-        print("18. Eliminar 1 o mas propiedades de multiples relaciones de la {}".format(entity_type))
-        print("19. Ver {}".format(entity_type))
-        print("20. Regresar")
+        print("13. Acctualizar una relacion de una {}".format(entity_type))
+        print("14. Eliminar una relacion de una {}".format(entity_type))
+        print("15. Agregar 1 o mas propiedades a una relacion de la {}".format(entity_type))
+        print("16. Agregar 1 o mas propiedades a multiples relaciones de la {}".format(entity_type))
+        print("17. Actualizar 1 o más propiedades de una relacion de la {}".format(entity_type))
+        print("18. Actualizar 1 o más propiedades de múltiples relaciones de la {}".format(entity_type))
+        print("19. Eliminar 1 o mas propiedades de una relacion de la {}".format(entity_type))
+        print("20. Eliminar 1 o mas propiedades de multiples relaciones de la {}".format(entity_type))
+        print("21. Ver {}".format(entity_type))
+        print("22. Regresar")
 
         choice = input("Por favor, seleccione una opción: ")
 
@@ -410,33 +600,50 @@ def menu_modify(menu_type):
             delete_properties_multiple(entity_type, entity_key)
             pass
         elif choice == "11":
-            # Placeholder for create_relationship_with_merge
+            if is_operation_applicable(entity_type):
+                create_relationship_with_merge(entity_type, entity_key, relation_types)
             pass
         elif choice == "12":
-            # Placeholder for create_relationship_with_create
+            if is_operation_applicable(entity_type):
+                create_relationship_with_create(entity_type, entity_key, relation_types)
             pass
         elif choice == "13":
-            # Placeholder for add_properties_to_relationship
+            if is_operation_applicable(entity_type):
+                update_relationship(entity_type, entity_key,relation_types)
             pass
         elif choice == "14":
-            # Placeholder for add_properties_to_multiple_relationships
+            if is_operation_applicable(entity_type):
+                delete_relationship(entity_type, entity_key, relation_types)
             pass
         elif choice == "15":
-            # Placeholder for update_properties_for_relationship
+            if is_operation_applicable(entity_type):
+                add_properties_relationship(entity_type, entity_key, relation_types)
             pass
         elif choice == "16":
-            # Placeholder for update_properties_for_multiple_relationships
+            if is_operation_applicable(entity_type):
+                add_properties_to_multiple_relationships(entity_type, entity_key, relation_types)
             pass
         elif choice == "17":
-            # Placeholder for delete_properties_from_relationship
+            if is_operation_applicable(entity_type):
+                update_properties_for_relationship(entity_type, entity_key, relation_types)
             pass
         elif choice == "18":
-            # Placeholder for delete_properties_from_multiple_relationships
+            if is_operation_applicable(entity_type):
+                update_properties_for_multiple_relationships(entity_type, entity_key, relation_types)
             pass
         elif choice == "19":
-            # Placeholder for show_entities
+            if is_operation_applicable(entity_type):
+                delete_relationship_properties(entity_type, entity_key, relation_types)
             pass
         elif choice == "20":
+            # Placeholder for delete_properties_from_multiple_relationships
+            if is_operation_applicable(entity_type):
+                delete_properties_for_multiple_relationships(entity_type, entity_key, relation_types)
+            pass
+        elif choice == "21":
+            show_entities(entity_type)
+            pass
+        elif choice == "22":
             return
         else:
             print("Opción inválida. Por favor, seleccione una opción válida.")
