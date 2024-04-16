@@ -212,65 +212,65 @@ def request_data(properties):
                 print(f"Invalid input for {prop}, expected {datatype.__name__}. Error: {e}. Please try again.")
     return data
 
-# def create_video_game():
-#     video_game_properties = {
-#         "titulo": str,
-#         "precio": float,
-#         "lanzamiento": str,  
-#         "plataformas": list
-#     }
-#     video_game_data = request_data(video_game_properties)
-#     return create_node(["VIDEOJUEGO", "JUEGO"], **video_game_data)
+def create_video_game():
+    video_game_properties = {
+        "titulo": str,
+        "precio": float,
+        "lanzamiento": str,  
+        "plataformas": list
+    }
+    video_game_data = request_data(video_game_properties)
+    return create_node(["VIDEOJUEGO", "JUEGO"], **video_game_data)
 
-# def create_genre():
-#     genre_properties = {
-#         "nombre": str,
-#         "popularidad": int,
-#         "descripcion": str,
-#         "promedio_calificacion": float
-#     }
-#     genre_data = request_data(genre_properties)
-#     return create_node(["GENERO"], **genre_data)
+def create_genre():
+    genre_properties = {
+        "nombre": str,
+        "popularidad": int,
+        "descripcion": str,
+        "promedio_calificacion": float
+    }
+    genre_data = request_data(genre_properties)
+    return create_node(["GENERO"], **genre_data)
 
-# def create_review():
-#     review_properties = {
-#         "titulo": str,
-#         "contenido": str,
-#         "calificacion": int,
-#         "fecha": str,  
-#         "util": bool
-#     }
-#     review_data = request_data(review_properties)
-#     return create_node(["REVIEW", "CRITICA"], **review_data)
+def create_review():
+    review_properties = {
+        "titulo": str,
+        "contenido": str,
+        "calificacion": int,
+        "fecha": str,  
+        "util": bool
+    }
+    review_data = request_data(review_properties)
+    return create_node(["REVIEW", "CRITICA"], **review_data)
 
-# def create_platform():
-#     platform_properties = {
-#         "nombre": str,
-#         "fabricante": str,
-#         "fecha_lanzamiento": str,  
-#         "disponible": bool,
-#         "exclusivos": list
-#     }
-#     platform_data = request_data(platform_properties)
-#     return create_node(["PLATAFORMA"], **platform_data)
+def create_platform():
+    platform_properties = {
+        "nombre": str,
+        "fabricante": str,
+        "fecha_lanzamiento": str,  
+        "disponible": bool,
+        "exclusivos": list
+    }
+    platform_data = request_data(platform_properties)
+    return create_node(["PLATAFORMA"], **platform_data)
 
-# def create_publisher():
-#     publisher_properties = {
-#         "nombre": str,
-#         "fundacion": str,  
-#         "pais": str,
-#         "sitio_web": str
-#     }
-#     publisher_data = request_data(publisher_properties)
-#     return create_node(["DISTRIBUIDORA"], **publisher_data)
+def create_publisher():
+    publisher_properties = {
+        "nombre": str,
+        "fundacion": str,  
+        "pais": str,
+        "sitio_web": str
+    }
+    publisher_data = request_data(publisher_properties)
+    return create_node(["DISTRIBUIDORA"], **publisher_data)
 
-# def create_guide():
-#     guide_properties = {
-#         "titulo": str,
-#         "contenido": str,
-#         "autor": str,
-#         "fecha_publicacion": str,  
-#         "etiquetas": list
-#     }
-#     guide_data = request_data(guide_properties)
-#     return create_node(["GUIA"], **guide_data)
+def create_guide():
+    guide_properties = {
+        "titulo": str,
+        "contenido": str,
+        "autor": str,
+        "fecha_publicacion": str,  
+        "etiquetas": list
+    }
+    guide_data = request_data(guide_properties)
+    return create_node(["GUIA"], **guide_data)
