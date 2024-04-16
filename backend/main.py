@@ -6,9 +6,14 @@ from admin import *
 
 def main():
     print("Bienvenido al sistema de recomendaciones de videojuegos!")
+    logged_in = False
     
     # Iniciar sesión
-    user_email = input("Por favor, introduzca su correo electrónico para iniciar sesión: ")
+    user_email = input("Por favor, introduzca su correo electrónico para iniciar sesión o exit para salir: ")
+
+    if user_email.lower() == "exit":
+        print("Saliendo del sistema.")
+        return
 
      # Verificar si el correo es el del administrador
     if user_email == "admin@ejemplo.com":
@@ -19,6 +24,7 @@ def main():
     user_node = graph.nodes.match("USUARIO", email=user_email).first()
     
     if user_node:
+        logged_in = True
         print(f"Bienvenido de nuevo, {user_node['nombre']}!")
     else:
         print("Usuario no encontrado.")
@@ -34,7 +40,7 @@ def main():
             return
     
     # Menú principal
-    while True:
+    while logged_in:
         print("\nMenú principal:")
         print("1. Recomendar juegos basados en los generos que te gustan")
         print("2. Recomendar juegos basados en tus juegos jugados")
@@ -170,7 +176,8 @@ def main():
             get_user_reviews(user_node['nombre'])
         elif choice == "8":
             print("Saliendo del sistema.")
-            break
+            logged_in = False
+            main()
         else:
             print("Opción no válida. Por favor, intente de nuevo.")
 
