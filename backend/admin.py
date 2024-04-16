@@ -259,29 +259,49 @@ def add_properties_relationship(entity_type, entity_key, relation_types):
 
 # opcion 16 agregar propiedades a multiples relaciones
 def add_properties_to_multiple_relationships(entity_type, entity_key, relation_types):
-    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea agregar propiedades a sus relaciones, separados por comas: ")
-    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
-
+    # Solicitar los nombres de la entidad inicial
+    entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea agregar propiedades de sus relacion: ")
+    # Comprueba si la entidad existe
     query = (
         f"MATCH (e:{entity_type}) "
-        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        f"WHERE e.{entity_key} = '{entity_name}' "
         "RETURN e"
     )
-    start_entity_nodes = graph.run(query).data()
-    if start_entity_nodes:
+    start_entity_node = graph.run(query).data()
+    # Si la entidad existe muestra las opciones de relaciones
+    if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea agregar propiedades a su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
+        relationship_choice = input("Introduzca el tipo de relación: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_names = input(f"Introduzca los nombres de las {end_node_label} con las que desea agregar propiedades a su relación, separados por comas: ")
+        end_entity_names_list = [f"'{name.strip()}'" for name in end_entity_names.split(",")]
+
+        query = (
+            f"MATCH (e:{end_node_label}) "
+            f"WHERE e.{end_node_key} IN [{','.join(end_entity_names_list)}] "
+            "RETURN e"
+        )
+        end_entity_nodes = graph.run(query).data()
+
+        if end_entity_nodes:
             input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
             properties = dict(item.split(":") for item in input_properties.split(","))
-            for start_entity_node in start_entity_nodes:
-                add_properties_for_relation(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
+            for end_entity_node in end_entity_nodes:
+                node = end_entity_node['e']
+                node_name = node['nombre']
+                query = (
+                    f"MATCH (e:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->"
+                    f"(n:{end_node_label} {{{end_node_key}: '{node_name}'}}) "
+                    "SET r += $properties"
+                )   
+                graph.run(query, properties=properties)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print(f"{end_node_label} no encontrada.")
     else:
         print(f"{entity_type} no encontrada.")
 
