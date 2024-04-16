@@ -24,7 +24,7 @@ def main():
         print("Usuario no encontrado.")
         create_new_user = input("¿Desea crear un nuevo usuario? (yes/no): ")
         if create_new_user.lower() == "yes":
-            if create_user():
+            if create_user_Main():
                 print("Usuario creado exitosamente.")
             else:
                 print("Ese correo ya está en uso. Usuario Actualizado")
@@ -42,7 +42,8 @@ def main():
         print("4. Buscar juegos")
         print("5. Agregar juego a mis jugados")
         print("6. Escribir una reseña")
-        print("7. Salir")
+        print("7. Ver reseñas")
+        print("8. Salir")
         
         choice = input("Por favor, seleccione una opción: ")
         
@@ -146,22 +147,28 @@ def main():
             else:
                 print(f"No se encontró el juego con el título {titulo}.")
         elif choice == "6":
+            entity_type = input("¿Qué desea calificar? (JUEGO/GENERO/DISTRIBUIDORA/PLATAFORMA): ").upper()
+            entity_id = input(f"Introduzca el nombre del {entity_type}: ")
+            
             review_properties = {
                 "titulo": input("Introduzca el título de la reseña: "),
                 "contenido": input("Escriba su reseña: "),
-                "calificacion": int(input("Califique el juego (1-5): ")),
+                "calificacion": int(input(f"Califique {entity_type} (1-5): ")),
                 "fecha": input("Introduzca la fecha de la reseña (YYYY-MM-DD): "),
-                "util": input("¿Recomienda este juego? (True/False): ").lower() == "true"
+                "util": input(f"¿Recomienda {entity_type}? (True/False): ").lower() == "true"
             }
+            
             review_node = create_review(review_properties)
             
             if review_node:
-                user_reviewed_game(user_node['nombre'], review_properties["titulo"], review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
+                user_reviewed_game(user_node['nombre'], review_node['titulo'], review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
+                review_rates(review_node['titulo'], entity_type, entity_id, review_properties["fecha"], review_properties["calificacion"], review_properties["util"])
                 print("Reseña creada exitosamente y relación establecida.")
             else:
                 print("Error al crear la reseña.")
-            pass
         elif choice == "7":
+            get_user_reviews(user_node['nombre'])
+        elif choice == "8":
             print("Saliendo del sistema.")
             break
         else:

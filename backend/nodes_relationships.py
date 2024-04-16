@@ -61,12 +61,24 @@ def user_reviewed_game(user_id, review_id, date, rating, recommends):
         print(f"No se encontró el usuario con id {user_id} o la reseña con id {review_id}")
         return None
 
-def review_rates_game(review_id, game_id, date, stars, verified):
+def review_rates(review_id, entity_type, entity_id, date, stars, verified):
     review_node = graph.nodes.match("REVIEW", titulo=review_id).first()
-    game_node = graph.nodes.match("JUEGO", titulo=game_id).first()
     
-    if review_node and game_node:
-        relation = Relationship(review_node, "CALIFICA", game_node,
+    # Determinar la etiqueta del nodo según el tipo de entidad
+    if entity_type == "JUEGO":
+        entity_node = graph.nodes.match("JUEGO", titulo=entity_id).first()
+    elif entity_type == "GENERO":
+        entity_node = graph.nodes.match("GENERO", nombre=entity_id).first()
+    elif entity_type == "DISTRIBUIDORA":
+        entity_node = graph.nodes.match("DISTRIBUIDORA", nombre=entity_id).first()
+    elif entity_type == "PLATAFORMA":
+        entity_node = graph.nodes.match("PLATAFORMA", nombre=entity_id).first()
+    else:
+        print(f"Tipo de entidad no válido: {entity_type}")
+        return None
+    
+    if review_node and entity_node:
+        relation = Relationship(review_node, "CALIFICA", entity_node,
                                 fecha=date,
                                 estrellas=stars,
                                 verificado=verified)
@@ -74,8 +86,9 @@ def review_rates_game(review_id, game_id, date, stars, verified):
         graph.create(relation)
         return relation
     else:
-        print(f"No se encontró la reseña con id {review_id} o el juego con id {game_id}")
+        print(f"No se encontró la reseña con id {review_id} o la entidad con id {entity_id}")
         return None
+
 
 def game_available_on_platform(game_id, platform_id, release_date, digital_format, special_edition):
     game_node = graph.nodes.match("JUEGO", titulo=game_id).first()

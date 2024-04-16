@@ -58,3 +58,29 @@ def create_user_Main():
         return True
     else:
         return False
+    
+def get_user_reviews(user_name):
+    query = (
+        "MATCH (u:USUARIO {nombre: $user_name})-[r1:`RESEÑÓ`]->(review:REVIEW)-[r2:CALIFICA]->(entity) "
+        "RETURN u, r1, review, r2, entity;"
+    )
+    results = graph.run(query, user_name=user_name).data()
+    
+    if results:
+        for record in results:
+            user = record['u']
+            review_relation = record['r1']
+            review = record['review']
+            califica_relation = record['r2']
+            entity = record['entity']
+            
+            print("-" * 50)
+            print(f"Usuario: {user['nombre']}")
+            print(f"Fecha de la reseña: {review_relation['fecha']}")
+            print(f"Título de la reseña: {review['titulo']}")
+            print(f"Contenido de la reseña: {review['contenido']}")
+            print(f"Calificación: {califica_relation['estrellas']} estrellas")
+            print(f"Entidad calificada: {entity.labels}: {entity['titulo'] if 'titulo' in entity else entity['nombre']}")
+            print("-" * 50)
+    else:
+        print("El usuario no tiene reseñas.")

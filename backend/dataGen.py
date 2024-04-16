@@ -125,8 +125,9 @@ def generate_fake_relationships(num_relationships):
         
         stars = random.randint(1, 5)
         verified = random.choice([True, False])
+        review_type = random.choice(["JUEGO", "GENERO", "PLATAFORMA", "DISTRIBUIDORA"])
         
-        review_rates_game(review, game_id, date, stars, verified)
+        review_rates(review, review_type, game_id, date, stars, verified)
         
         digital_format = random.choice([True, False])
         special_edition = random.choice([True, False])
