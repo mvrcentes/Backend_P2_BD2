@@ -19,12 +19,7 @@ def create_entity(entity_properties, entity_labels):
     create_node(entity_labels, **entity_data)
 
 # opcion 3 actualizar publisher
-def update_entity(entity_properties, entity_labels, entity_type):
-    if "nombre" not in entity_properties:
-        entity_key = "titulo"
-    else:
-        entity_key = "nombre"
-
+def update_entity(entity_properties, entity_labels, entity_type, entity_key):
     entity_name = input(f"Introduzca el nombre de la {entity_type.lower()} que desea actualizar: ")
     entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
     
@@ -35,53 +30,52 @@ def update_entity(entity_properties, entity_labels, entity_type):
         print(f"{entity_type} no encontrada.")
 
 # opcion 4 eliminar publisher
-def delete_publisher():
-    publisher_name = input("Introduzca el nombre de la distribuidora que desea eliminar: ")
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
-    if publisher_node:
-        delete_node(publisher_node)
+def delete_entity(entity_type, entity_key):
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()} que desea eliminar: ")
+    entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
+    if entity_node:
+        delete_node(entity_node)
     else:
         print("Distribuidora no encontrada.")
 
 # opcion 5 agregar propiedades a publisher
-def add_properties_to_publisher():
+def add_properties_entity(entity_type, entity_key):
     # pregunta por el nombre de la distribuidora
-    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea agregar propiedades: ")
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()} a la que desea agregar propiedades: ")
     #comprueba si la distribuidora existe
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
+    entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
     # si la distribuidora existe pregunta por las propiedades a agregar
-    if publisher_node:
+    if entity_node:
         input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
         properties = dict(item.split(":") for item in input_properties.split(","))
-        add_properties_for_node(NodeMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_name, **properties)
+        add_properties_for_node(NodeMatcher(graph), entity_type, entity_key, entity_name, **properties)
 
 # opcion 6 agregar propiedades a multiples publishers
-def add_properties_to_multiple_publishers():
-    # pregunta por los nombres de las distribuidoras
-    publisher_names = input("Introduzca los nombres de las distribuidoras a las que desea agregar propiedades separadas por comas: ")
-    publisher_names_list = [f"'{name.strip()}'" for name in publisher_names.split(",")]
-    # verificar si las distribuidoras existen
+def add_properties_multiple_entities(entity_type, entity_key):
+    entity_names = input(f"Introduzca los nombres de {entity_type.lower()} a las que desea agregar propiedades separadas por comas: ")
+    entity_names_list = [f"'{name.strip()}'" for name in entity_names.split(",")]
+
     query = (
-        "MATCH (d:DISTRIBUIDORA) "
-        f"WHERE d.nombre IN [{','.join(publisher_names_list)}] "
-        "RETURN d"
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} IN [{','.join(entity_names_list)}] "
+        "RETURN e"
     )
-    publisher_nodes = graph.run(query).data()
+    entity_nodes = graph.run(query).data()
     # si las distribuidoras existen pregunta por las propiedades a agregar
-    if publisher_nodes:
+    if entity_nodes:
         input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
         properties = dict(item.split(":") for item in input_properties.split(","))
         
-        for publisher_node in publisher_nodes:
-            add_properties_for_node(NodeMatcher(graph), "DISTRIBUIDORA", "nombre", publisher_node["d"]["nombre"], **properties)
+        for entity_node in entity_nodes:
+            add_properties_for_node(NodeMatcher(graph), entity_type, entity_key, entity_node["e"][entity_key], **properties)
 
 # opcion 7 actualizar propiedades de un publisher
-def update_properties_for_publisher():
-    publisher_name = input("Introduzca el nombre de la distribuidora que desea actualizar: ")
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
+def update_properties_entity(entity_type, entity_labels, entity_key):
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()} que desea actualizar: ")
+    entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
     # obtener las propiedades actuales de la distribuidora
-    if publisher_node:
-        current_properties = dict(publisher_node)
+    if entity_node:
+        current_properties = dict(entity_node)
         print("Propiedades actuales:")
         for key, value in current_properties.items():
             print(f"{key}: {value}")
@@ -89,21 +83,21 @@ def update_properties_for_publisher():
         input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
         properties = dict(item.split(":") for item in input_properties.split(","))
         # actualizar las propiedades
-        update_node_properties("DISTRIBUIDORA", "nombre", publisher_name, **properties)
+        update_node_properties(entity_labels, entity_key, entity_name, **properties)
 
 # opcion 8 actualizar propiedades de multiples publishers
-def update_properties_for_multiple_publishers():
+def update_properties_multiple(entity_type, entity_labels, entity_key):
     # Solicitar los nombres de las distribuidoras
-    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea actualizar propiedades, separados por comas: ")
-    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+    entity_names_input = input(f"Introduzca los nombres de {entity_type.lower()} a las que desea actualizar propiedades, separados por comas: ")
+    entity_names = [name.strip() for name in entity_names_input.split(",")]
 
     # Solicitar las propiedades a actualizar
     properties_input = input("Introduzca las propiedades a actualizar en formato clave:valor, separadas por comas: ")
     properties = dict(item.split(":") for item in properties_input.split(","))
 
     # Para cada distribuidora, actualizar las propiedades especificadas
-    for publisher_name in publisher_names:
-        update_node_properties("DISTRIBUIDORA", "nombre", publisher_name, **properties)
+    for entity_name in entity_names:
+        update_node_properties(entity_labels, entity_key, entity_name, **properties)
 
 # opcion 9 eliminar propiedades de un publisher
 def delete_properties_from_publisher():
@@ -305,6 +299,7 @@ def show_publishers():
 def menu_modify(menu_type):
     entity_type = menu_type.upper()
     if entity_type == "JUEGO":
+        entity_key = "titulo"
         entity_labels = ["JUEGO", "VIDEOJUEGO"]
         entity_properties = {
             "titulo": str,
@@ -313,6 +308,7 @@ def menu_modify(menu_type):
             "plataformas": list
         }
     elif entity_type == "GENERO":
+        entity_key = "nombre"
         entity_labels = ["GENERO"]
         entity_properties = {
             "nombre": str,
@@ -321,6 +317,7 @@ def menu_modify(menu_type):
             "promedio_calificacion": float
         }
     elif entity_type == "REVIEW":
+        entity_key = "titulo"
         entity_labels = ["REVIEW", "CRITICA"]
         entity_properties = {
             "titulo": str,
@@ -330,6 +327,7 @@ def menu_modify(menu_type):
             "util": bool
         }
     elif entity_type == "PLATAFORMA":
+        entity_key = "nombre"
         entity_labels = ["PLATAFORMA"]
         entity_properties = {
             "nombre": str,
@@ -339,6 +337,7 @@ def menu_modify(menu_type):
             "exclusivos": list
         }
     elif entity_type == "DISTRIBUIDORA":
+        entity_key = "nombre"
         entity_labels = ["DISTRIBUIDORA"]
         entity_properties = {
             "nombre": str,
@@ -347,6 +346,7 @@ def menu_modify(menu_type):
             "sitio_web": str
         }
     elif entity_type == "GUIA":
+        entity_key = "titulo"
         entity_labels = ["GUIA"]
         entity_properties = {
             "titulo": str,
@@ -391,11 +391,9 @@ def menu_modify(menu_type):
         elif choice == "3":
             update_entity(entity_properties, entity_labels, entity_type)
         elif choice == "4":
-            # Placeholder for delete_entity
-            pass
+            delete_entity(entity_type, entity_key)
         elif choice == "5":
-            # Placeholder for add_properties_to_entity
-            pass
+            add_properties_entity(entity_type, entity_key)
         elif choice == "6":
             # Placeholder for add_properties_to_multiple_entities
             pass
