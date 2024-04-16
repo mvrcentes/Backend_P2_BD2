@@ -2,43 +2,37 @@ from crud import *
 from nodes_relationships import *
 
 # opcion 1 crear publisher con merge
-def create_publisher_whith_merge():
-    publisher_properties = {
-      "nombre": str,
-      "fundacion": str,  
-      "pais": str,
-      "sitio_web": str
-    }
-    publisher_data = request_data(publisher_properties)
-    merge_node(["DISTRIBUIDORA"], "nombre", publisher_data["nombre"], **publisher_data)
+def merge_entity(entity_properties, entity_labels):
+    # check if property nombre exists
+    if "nombre" not in entity_properties:
+        entity_value = entity_properties["titulo"]
+        entity_key = "titulo"
+    else:
+        entity_value = entity_properties["nombre"]
+        entity_key = "nombre"
+    entity_data = request_data(entity_properties)
+    merge_node(entity_labels, entity_key, entity_value, **entity_data)
 
 # opcion 2 crear publisher con create
-def create_publisher_whith_create():
-    publisher_properties = {
-      "nombre": str,
-      "fundacion": str,  
-      "pais": str,
-      "sitio_web": str
-    }
-    publisher_data = request_data(publisher_properties)
-    create_node(["DISTRIBUIDORA"], **publisher_data)
+def create_entity(entity_properties, entity_labels):
+    entity_data = request_data(entity_properties)
+    create_node(entity_labels, **entity_data)
 
 # opcion 3 actualizar publisher
-def update_publisher():
-    publisher_properties = {
-      "nombre": str,
-      "fundacion": str,  
-      "pais": str,
-      "sitio_web": str
-    }
-
-    publisher_name = input("Introduzca el nombre de la distribuidora que desea actualizar: ")
-    publisher_node = graph.nodes.match("DISTRIBUIDORA").where(f"_.nombre = '{publisher_name}'").first()
-    if publisher_node:
-        publisher_data = request_data(publisher_properties)
-        merge_node(["DISTRIBUIDORA"], "nombre", publisher_name, **publisher_data)
+def update_entity(entity_properties, entity_labels, entity_type):
+    if "nombre" not in entity_properties:
+        entity_key = "titulo"
     else:
-        print("Distribuidora no encontrada.")
+        entity_key = "nombre"
+
+    entity_name = input(f"Introduzca el nombre de la {entity_type.lower()} que desea actualizar: ")
+    entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{entity_name}'").first()
+    
+    if entity_node:
+        entity_data = request_data(entity_properties)
+        merge_node(entity_labels, entity_key, entity_name, **entity_data)
+    else:
+        print(f"{entity_type} no encontrada.")
 
 # opcion 4 eliminar publisher
 def delete_publisher():
@@ -309,84 +303,156 @@ def show_publishers():
        
 
 def menu_modify(menu_type):
-    print(f"Menú de {menu_type}:")
-    print(f"1. Crear {menu_type} por medio de la operacion merge")
-    print(f"2. Crear {menu_type} por medio de la operacion create")
-    print(f"3. Actualizar {menu_type}")
-    print(f"4. Eliminar {menu_type}")
-    print(f"5. Agregar 1 o mas propiedades a una {menu_type}")
-    print(f"6. Agregar 1 o mas propiedades a multiples {menu_type}")
-    print(f"7. Actualizar 1 o más propiedades de un {menu_type}")
-    print(f"8. Actualizar 1 o más propiedades de múltiples {menu_type}")
-    print(f"9. Eliminar 1 o mas propiedades de una {menu_type}")
-    print(f"10. Eliminar 1 o mas propiedades de multiples {menu_type}")
-    print(f"11. Crear una relacion entre una {menu_type} y un juego por medio de la operacion merge")
-    print(f"12. Crear una relacion entre una {menu_type} y un juego por medio de la operacion create")
-    print(f"13. Agregar 1 o mas propiedades a una relacion de la {menu_type}")
-    print(f"14. Agregar 1 o mas propiedades a multiples relaciones de la {menu_type}")
-    print(f"15. Actualizar 1 o más propiedades de una relacion de la {menu_type}")
-    print(f"16. Actualizar 1 o más propiedades de múltiples relaciones de la {menu_type}")
-    print(f"17. Eliminar 1 o mas propiedades de una relacion de la {menu_type}")
-    print(f"18. Eliminar 1 o mas propiedades de multiples relaciones de la {menu_type}")
-    print(f"19. Ver {menu_type}")
-    print("20. Regresar")
-    
-    choice = input("Por favor, seleccione una opción: ")
-    
-    if choice == "1": 
-        create_publisher_whith_merge()
-    elif choice == "2":
-        create_publisher_whith_create()
-    elif choice == "3":
-        update_publisher()
-    elif choice == "4":
-        delete_publisher()
-    elif choice == "5":
-        add_properties_to_publisher()
-    elif choice == "6":
-        add_properties_to_multiple_publishers()
-    elif choice == "7":
-        update_properties_for_publisher()
-    elif choice == "8":
-        update_properties_for_multiple_publishers()
-    elif choice == "9":
-        delete_properties_from_publisher()
-    elif choice == "10":
-        delete_properties_from_multiple_publishers()
-    elif choice == "11":
-        create_publisher_game_relationship_with_merge()
-    elif choice == "12":
-        create_publisher_game_relationship_with_create()
-    elif choice == "13":
-        add_properties_to_publisher_relationship()
-    elif choice == "14":
-        add_properties_to_multiple_publishers()
-    elif choice == "15":
-        update_properties_for_publisher_relationship()
-    elif choice == "16":
-        update_properties_for_multiple_publishers()
-    elif choice == "17":
-        delete_properties_for_publisher_relationship()
-    elif choice == "18":
-        delete_properties_for_multiple_publishers_relationship()
-    elif choice == "19":
-        show_publishers()
-    elif choice == "20":
-        return
+    entity_type = menu_type.upper()
+    if entity_type == "JUEGO":
+        entity_labels = ["JUEGO", "VIDEOJUEGO"]
+        entity_properties = {
+            "titulo": str,
+            "precio": float,
+            "lanzamiento": str,
+            "plataformas": list
+        }
+    elif entity_type == "GENERO":
+        entity_labels = ["GENERO"]
+        entity_properties = {
+            "nombre": str,
+            "popularidad": int,
+            "descripcion": str,
+            "promedio_calificacion": float
+        }
+    elif entity_type == "REVIEW":
+        entity_labels = ["REVIEW", "CRITICA"]
+        entity_properties = {
+            "titulo": str,
+            "contenido": str,
+            "calificacion": int,
+            "fecha": str,
+            "util": bool
+        }
+    elif entity_type == "PLATAFORMA":
+        entity_labels = ["PLATAFORMA"]
+        entity_properties = {
+            "nombre": str,
+            "fabricante": str,
+            "fecha_lanzamiento": str,
+            "disponible": bool,
+            "exclusivos": list
+        }
+    elif entity_type == "DISTRIBUIDORA":
+        entity_labels = ["DISTRIBUIDORA"]
+        entity_properties = {
+            "nombre": str,
+            "fundacion": str,
+            "pais": str,
+            "sitio_web": str
+        }
+    elif entity_type == "GUIA":
+        entity_labels = ["GUIA"]
+        entity_properties = {
+            "titulo": str,
+            "contenido": str,
+            "autor": str,
+            "fecha_publicacion": str,
+            "etiquetas": list
+        }
     else:
-        print("Opción inválida. Por favor, seleccione una opción válida.")
+        print("Tipo de entidad no válido.")
+        return
 
+    while True:
+        print(f"\nMenú de {menu_type}:")
+        print("1. Crear {} por medio de la operacion merge".format(entity_type))
+        print("2. Crear {} por medio de la operacion create".format(entity_type))
+        print("3. Actualizar {}".format(entity_type))
+        print("4. Eliminar {}".format(entity_type))
+        print("5. Agregar 1 o mas propiedades a una {}".format(entity_type))
+        print("6. Agregar 1 o mas propiedades a multiples {}".format(entity_type))
+        print("7. Actualizar 1 o más propiedades de un {}".format(entity_type))
+        print("8. Actualizar 1 o más propiedades de múltiples {}".format(entity_type))
+        print("9. Eliminar 1 o mas propiedades de una {}".format(entity_type))
+        print("10. Eliminar 1 o mas propiedades de multiples {}".format(entity_type))
+        print("11. Crear una relacion de una {} por medio de la operacion merge".format(entity_type))
+        print("12. Crear una relacion entre una {} por medio de la operacion create".format(entity_type))
+        print("13. Agregar 1 o mas propiedades a una relacion de la {}".format(entity_type))
+        print("14. Agregar 1 o mas propiedades a multiples relaciones de la {}".format(entity_type))
+        print("15. Actualizar 1 o más propiedades de una relacion de la {}".format(entity_type))
+        print("16. Actualizar 1 o más propiedades de múltiples relaciones de la {}".format(entity_type))
+        print("17. Eliminar 1 o mas propiedades de una relacion de la {}".format(entity_type))
+        print("18. Eliminar 1 o mas propiedades de multiples relaciones de la {}".format(entity_type))
+        print("19. Ver {}".format(entity_type))
+        print("20. Regresar")
+
+        choice = input("Por favor, seleccione una opción: ")
+
+        if choice == "1":
+            merge_entity(entity_properties, entity_labels)
+        elif choice == "2":
+            create_entity(entity_properties, entity_labels)
+        elif choice == "3":
+            update_entity(entity_properties, entity_labels, entity_type)
+        elif choice == "4":
+            # Placeholder for delete_entity
+            pass
+        elif choice == "5":
+            # Placeholder for add_properties_to_entity
+            pass
+        elif choice == "6":
+            # Placeholder for add_properties_to_multiple_entities
+            pass
+        elif choice == "7":
+            # Placeholder for update_properties_for_entity
+            pass
+        elif choice == "8":
+            # Placeholder for update_properties_for_multiple_entities
+            pass
+        elif choice == "9":
+            # Placeholder for delete_properties_from_entity
+            pass
+        elif choice == "10":
+            # Placeholder for delete_properties_from_multiple_entities
+            pass
+        elif choice == "11":
+            # Placeholder for create_relationship_with_merge
+            pass
+        elif choice == "12":
+            # Placeholder for create_relationship_with_create
+            pass
+        elif choice == "13":
+            # Placeholder for add_properties_to_relationship
+            pass
+        elif choice == "14":
+            # Placeholder for add_properties_to_multiple_relationships
+            pass
+        elif choice == "15":
+            # Placeholder for update_properties_for_relationship
+            pass
+        elif choice == "16":
+            # Placeholder for update_properties_for_multiple_relationships
+            pass
+        elif choice == "17":
+            # Placeholder for delete_properties_from_relationship
+            pass
+        elif choice == "18":
+            # Placeholder for delete_properties_from_multiple_relationships
+            pass
+        elif choice == "19":
+            # Placeholder for show_entities
+            pass
+        elif choice == "20":
+            return
+        else:
+            print("Opción inválida. Por favor, seleccione una opción válida.")
 
 
 def admin_menu():
     menu_choices = {
-        "1": "distribuidoras",
-        "2": "juegos",
-        "3": "guias",
-        "4": "usuarios",
-        "5": "plataformas",
-        "6": "reseñas",
-        "7": "generos",
+        "1": "DISTRIBUIDORA",
+        "2": "JUEGO",
+        "3": "GUIA",
+        "4": "USUARIO",
+        "5": "PLATAFORMA",
+        "6": "REVIEW",
+        "7": "GENERO",
         "8": "salir"
     }
     

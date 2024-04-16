@@ -170,13 +170,6 @@ def delete_multiple_relation_properties(matcher, start_node_label, start_node_pr
 
 
 def request_data(properties):
-    """
-    Solicita al usuario que introduzca valores para una serie de propiedades definidas en un diccionario con tipos.
-    La función valida los tipos de datos y maneja valores opcionales, repitiendo la solicitud hasta que la entrada sea válida.
-    
-    :param properties: Un diccionario donde las claves son nombres de propiedades y los valores son los tipos de datos esperados.
-    :return: Un diccionario con los valores introducidos y convertidos según los tipos especificados.
-    """
     data = {}
     for prop, datatype in properties.items():
         while True:
