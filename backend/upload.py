@@ -38,7 +38,7 @@ def main():
                     }
 
                     query = """
-                        MERGE (game:Videogame {Title: $a, Features_Handheld: $b, Features_Max_Players: $c, Features_Multiplatform: $d, Features_Online: $e,
+                        MERGE (game:VIDEOJUEGO {Title: $a, Features_Handheld: $b, Features_Max_Players: $c, Features_Multiplatform: $d, Features_Online: $e,
                         Metadata_Genres: $f, Metadata_Licensed: $g, Metadata_Publishers: $h, Metadata_Sequel: $i, Metrics_Review_Score: $j,
                         Metrics_Sales: $k, Metrics_Used_Price: $l, Release_Console: $m, Release_Rating: $n, Release_Re_release: $o, Release_Year: $p})
                     """
