@@ -100,30 +100,30 @@ def update_properties_multiple(entity_type, entity_labels, entity_key):
         update_node_properties(entity_labels, entity_key, entity_name, **properties)
 
 # opcion 9 eliminar propiedades de un publisher
-def delete_properties_from_publisher():
+def delete_properties_entity(entity_type, entity_key):
     # Solicitar el nombre de la distribuidora
-    publisher_name = input("Introduzca el nombre de la distribuidora a la que desea eliminar propiedades: ")
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()} a la que desea eliminar propiedades: ")
 
     # Solicitar las propiedades a eliminar
     properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
     properties = properties_input.split(",")
 
     # Eliminar las propiedades de la distribuidora
-    delete_node_properties("DISTRIBUIDORA", "nombre", publisher_name, *properties)
+    delete_node_properties(entity_type, entity_key, entity_name, *properties)
 
 # opcion 10 eliminar propiedades de multiples publishers
-def delete_properties_from_multiple_publishers():
+def delete_properties_multiple(entity_type, entity_key):
     # Solicitar los nombres de las distribuidoras
-    publisher_names_input = input("Introduzca los nombres de las distribuidoras a las que desea eliminar propiedades, separados por comas: ")
-    publisher_names = [name.strip() for name in publisher_names_input.split(",")]
+    entity_names = input(f"Introduzca los nombres de {entity_type.lower()} a las que desea eliminar propiedades, separados por comas: ")
+    entity_names_list = [name.strip() for name in entity_names.split(",")]
 
     # Solicitar las propiedades a eliminar
     properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
     properties = properties_input.split(",")
 
     # Para cada distribuidora, eliminar las propiedades especificadas
-    for publisher_name in publisher_names:
-        delete_node_properties("DISTRIBUIDORA", "nombre", publisher_name, *properties)
+    for entity_name in entity_names_list:
+        delete_node_properties(entity_type, entity_key, entity_name, *properties)
 
 # opcion 11 crear relacion entre publisher y juego con merge
 def create_publisher_game_relationship_with_merge():
@@ -395,19 +395,19 @@ def menu_modify(menu_type):
         elif choice == "5":
             add_properties_entity(entity_type, entity_key)
         elif choice == "6":
-            # Placeholder for add_properties_to_multiple_entities
+            add_properties_multiple_entities(entity_type, entity_key)
             pass
         elif choice == "7":
-            # Placeholder for update_properties_for_entity
+            update_properties_entity(entity_type, entity_labels, entity_key)
             pass
         elif choice == "8":
-            # Placeholder for update_properties_for_multiple_entities
+            update_properties_multiple(entity_type, entity_labels, entity_key)
             pass
         elif choice == "9":
-            # Placeholder for delete_properties_from_entity
+            delete_properties_entity(entity_type, entity_key)
             pass
         elif choice == "10":
-            # Placeholder for delete_properties_from_multiple_entities
+            delete_properties_multiple(entity_type, entity_key)
             pass
         elif choice == "11":
             # Placeholder for create_relationship_with_merge
