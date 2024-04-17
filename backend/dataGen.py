@@ -80,7 +80,7 @@ def generate_fake_publishers(num_publishers):
             "fundacion": fake.date_this_century(),
             "pais": fake.country(),
             "sitio_web": fake.url(),
-            "sucursales": random.randint(1, 100),
+            "sucursales": [fake.country() for _ in range(5)],
         }
         create_publisher(publisher_properties)
 
