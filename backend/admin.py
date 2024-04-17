@@ -259,146 +259,281 @@ def add_properties_relationship(entity_type, entity_key, relation_types):
 
 # opcion 16 agregar propiedades a multiples relaciones
 def add_properties_to_multiple_relationships(entity_type, entity_key, relation_types):
-    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea agregar propiedades a sus relaciones, separados por comas: ")
-    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
-
+    # Solicitar los nombres de la entidad inicial
+    entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea agregar propiedades de sus relacion: ")
+    # Comprueba si la entidad existe
     query = (
         f"MATCH (e:{entity_type}) "
-        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        f"WHERE e.{entity_key} = '{entity_name}' "
         "RETURN e"
     )
-    start_entity_nodes = graph.run(query).data()
-    if start_entity_nodes:
+    start_entity_node = graph.run(query).data()
+    # Si la entidad existe muestra las opciones de relaciones
+    if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea agregar propiedades a su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
+        relationship_choice = input("Introduzca el tipo de relación: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_names = input(f"Introduzca los nombres de las {end_node_label} con las que desea agregar propiedades a su relación, separados por comas: ")
+        end_entity_names_list = [f"'{name.strip()}'" for name in end_entity_names.split(",")]
+
+        query = (
+            f"MATCH (e:{end_node_label}) "
+            f"WHERE e.{end_node_key} IN [{','.join(end_entity_names_list)}] "
+            "RETURN e"
+        )
+        end_entity_nodes = graph.run(query).data()
+
+        if end_entity_nodes:
             input_properties = input("Introduzca las propiedades a agregar en formato clave:valor separadas por comas: ")
             properties = dict(item.split(":") for item in input_properties.split(","))
-            for start_entity_node in start_entity_nodes:
-                add_properties_for_relation(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
+            for end_entity_node in end_entity_nodes:
+                node = end_entity_node['e']
+                node_name = node['nombre']
+                query = (
+                    f"MATCH (e:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->"
+                    f"(n:{end_node_label} {{{end_node_key}: '{node_name}'}}) "
+                    "SET r += $properties"
+                )   
+                graph.run(query, properties=properties)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print(f"{end_node_label} no encontrada.")
     else:
         print(f"{entity_type} no encontrada.")
 
 # opcion 17 actualizar propiedades de una relacion
 def update_properties_for_relationship(entity_type, entity_key, relation_types):
-    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea actualizar propiedades de su relación: ")
-    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
-    # si la entidad existe mustra las opciones de relaciones
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()}: ")
+
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} = '{entity_name}' "
+        "RETURN e"
+    )
+    start_entity_node = graph.run(query).data()
+
     if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea actualizar propiedades de su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
-            relation = graph.match(nodes=(start_entity_node, end_entity_node), r_type=relation_types[relationship_type]["tipo_relacion"]).first()
-            if relation:
-                current_properties = dict(relation)
-                print("Propiedades actuales:")
-                for key, value in current_properties.items():
-                    print(f"{key}: {value}")
-                # solicitar las propiedades a actualizar
-                input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
-                properties = dict(item.split(":") for item in input_properties.split(","))
-                # actualizar las propiedades
-                update_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
-            else:
-                print("Relación no encontrada.")
+        relationship_choice = input("Seleccione el tipo de relación para actualizar propiedades: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_name = input(f"Introduzca el nombre de {end_node_label} cuya relación desea actualizar: ")
+
+        query = (
+            f"MATCH (s:{entity_type})-[r:{relationship_type}]->(e:{end_node_label}) "
+            f"WHERE s.{entity_key} = '{entity_name}' AND e.{end_node_key} = '{end_entity_name}' "
+            "RETURN r, e"
+        )
+        end_entity_node = graph.run(query).data()
+
+        if end_entity_node and 'r' in end_entity_node[0]:
+            print("Propiedades actuales de la relación:")
+            relationship_properties = end_entity_node[0]['r']
+            for key, value in relationship_properties.items():
+                # Convert value to string explicitly to avoid formatting issues
+                value_str = str(value)
+                print(f"{key}: {value_str}")
+            input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor, separadas por comas: ")
+            properties = dict(item.split(":") for item in input_properties.split(","))
+
+            query = (
+                f"MATCH (s:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->(e:{end_node_label} {{{end_node_key}: '{end_entity_name}'}}) "
+                "SET r += $properties"
+            )
+            graph.run(query, properties=properties)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print("No se encontró una relación válida o la entidad especificada.")
     else:
-        print(f"{entity_type} no encontrada.")
+        print(f"No se encontró ninguna entidad con el nombre {entity_name} del tipo {entity_type}.")
 
 # opcion 18 actualizar propiedades de multiples relaciones
-def update_properties_for_multiple_relationships(entity_type, entity_key, relation_types):
-    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea actualizar propiedades de sus relaciones, separados por comas: ")
-    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
-
+def update_properties_to_multiple_relationships(entity_type, entity_key, relation_types):
+    entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea actualizar propiedades de sus relaciones: ")
     query = (
         f"MATCH (e:{entity_type}) "
-        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        f"WHERE e.{entity_key} = '{entity_name}' "
         "RETURN e"
     )
-    start_entity_nodes = graph.run(query).data()
-    if start_entity_nodes:
+    start_entity_node = graph.run(query).data()
+
+    if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea actualizar propiedades de su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
-            input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
-            properties = dict(item.split(":") for item in input_properties.split(","))
-            for start_entity_node in start_entity_nodes:
-                update_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, **properties)
+        relationship_choice = input("Introduzca el tipo de relación: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_names = input(f"Introduzca los nombres de las {end_node_label} con las que desea actualizar propiedades a su relación, separados por comas: ")
+        end_entity_names_list = [f"'{name.strip()}'" for name in end_entity_names.split(",")]
+
+        query = (
+            f"MATCH (e:{entity_type})-[r:{relationship_type}]->(n:{end_node_label}) "
+            f"WHERE e.{entity_key} = '{entity_name}' AND n.{end_node_key} IN [{','.join(end_entity_names_list)}] "
+            "RETURN n, r"
+        )
+        relationships = graph.run(query).data()
+
+        if relationships:
+            for i, rel in enumerate(relationships, start=1):
+                node = rel['n']
+                relationship = rel['r']
+                print(f"Propiedades actuales de la relación {i}:")
+                if relationship:
+                    for key, value in relationship.items():
+                        # Convert value to string using str() or custom handling if it's a specific type
+                        safe_value = value if isinstance(value, (int, float, str)) else str(value)
+                        print(f"{key}: {safe_value}")
+                else:
+                    print("Esta relación no tiene propiedades definidas.")
+
+                input_properties = input("Introduzca las propiedades a actualizar en formato clave:valor separadas por comas: ")
+                properties = dict(item.split(":") for item in input_properties.split(","))
+
+                node_name = node[end_node_key]
+                query = (
+                    f"MATCH (e:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->"
+                    f"(n:{end_node_label} {{{end_node_key}: '{node_name}'}}) "
+                    "SET r += $properties"
+                )   
+                graph.run(query, properties=properties)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print(f"No se encontraron relaciones válidas para actualizar.")
     else:
         print(f"{entity_type} no encontrada.")
 
 # opcion 19 eliminar 1 o mas propiedades de una relacion
 def delete_relationship_properties(entity_type, entity_key, relation_types):
-    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea eliminar propiedades de su relación: ")
-    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
-    # si la entidad existe mustra las opciones de relaciones
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()}: ")
+
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} = '{entity_name}' "
+        "RETURN e"
+    )
+    start_entity_node = graph.run(query).data()
+
     if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea eliminar propiedades de su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
-            # Solicitar las propiedades a eliminar
-            properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
-            properties = properties_input.split(",")
-            # Eliminar las propiedades de la relación
-            delete_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, *properties)
+        relationship_choice = input("Seleccione el tipo de relación para eliminar propiedades: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_name = input(f"Introduzca el nombre de {end_node_label} cuya relación desea modificar: ")
+
+        query = (
+            f"MATCH (s:{entity_type})-[r:{relationship_type}]->(e:{end_node_label}) "
+            f"WHERE s.{entity_key} = '{entity_name}' AND e.{end_node_key} = '{end_entity_name}' "
+            "RETURN r, e"
+        )
+        relationship_node = graph.run(query).data()
+
+        if relationship_node and 'r' in relationship_node[0]:
+            print("Propiedades actuales de la relación:")
+            relationship_properties = relationship_node[0]['r']
+            for key, value in relationship_properties.items():
+                # Convert value to string explicitly to avoid formatting issues
+                value_str = str(value)
+                print(f"{key}: {value_str}")
+            input_properties = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+            properties_to_remove = input_properties.split(",")
+
+            # Building the removal part of the query
+            removal_part = ", ".join([f"r.{prop} = NULL" for prop in properties_to_remove])
+            query = (
+                f"MATCH (s:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->(e:{end_node_label} {{{end_node_key}: '{end_entity_name}'}}) "
+                f"SET {removal_part}"
+            )
+            graph.run(query)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print("No se encontró una relación válida o la entidad especificada.")
     else:
-        print(f"{entity_type} no encontrada.")
+        print(f"No se encontró ninguna entidad con el nombre {entity_name} del tipo {entity_type}.")
+
 
 # opcion 20 eliminar 1 o mas propiedades de multiples relaciones
 def delete_properties_for_multiple_relationships(entity_type, entity_key, relation_types):
-    start_entity_names = input(f"Introduzca los nombres de las {entity_type} a las que desea eliminar propiedades de sus relaciones, separados por comas: ")
-    start_entity_names_list = [f"'{name.strip()}'" for name in start_entity_names.split(",")]
+    def safe_str(obj):
+        try:
+            return str(obj)
+        except Exception:
+            return f"Unsupported object: {type(obj).__name__}"
 
+    entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea eliminar propiedades de sus relaciones: ")
     query = (
         f"MATCH (e:{entity_type}) "
-        f"WHERE e.{entity_key} IN [{','.join(start_entity_names_list)}] "
+        f"WHERE e.{entity_key} = '{entity_name}' "
         "RETURN e"
     )
-    start_entity_nodes = graph.run(query).data()
-    if start_entity_nodes:
+    start_entity_node = graph.run(query).data()
+
+    if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea eliminar propiedades de su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
-            # Solicitar las propiedades a eliminar
-            properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
-            properties = properties_input.split(",")
-            for start_entity_node in start_entity_nodes:
-                delete_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_node["e"][entity_key], relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, *properties)
+        relationship_choice = input("Introduzca el tipo de relación: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_names = input(f"Introduzca los nombres de las {end_node_label} con las que desea eliminar propiedades de su relación, separados por comas: ")
+        end_entity_names_list = [f"'{name.strip()}'" for name in end_entity_names.split(",")]
+
+        query = (
+            f"MATCH (e:{entity_type})-[r:{relationship_type}]->(n:{end_node_label}) "
+            f"WHERE e.{entity_key} = '{entity_name}' AND n.{end_node_key} IN [{','.join(end_entity_names_list)}] "
+            "RETURN n, r"
+        )
+        relationships = graph.run(query).data()
+
+        if relationships:
+            for i, rel in enumerate(relationships, start=1):
+                node = rel['n']
+                relationship = rel['r']
+                print(f"Propiedades actuales de la relación {i}:")
+                if relationship:
+                    for key, value in relationship.items():
+                        print(f"{key}: {safe_str(value)}")
+                else:
+                    print("Esta relación no tiene propiedades definidas.")
+
+                input_properties = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+                properties_to_remove = input_properties.split(",")
+
+                node_name = node[end_node_key]
+                removal_query_parts = [f"r.{prop.strip()} = NULL" for prop in properties_to_remove]
+                query = (
+                    f"MATCH (e:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->"
+                    f"(n:{end_node_label} {{{end_node_key}: '{node_name}'}}) "
+                    f"SET {', '.join(removal_query_parts)}"
+                )
+                graph.run(query)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print(f"No se encontraron relaciones válidas para eliminar propiedades.")
     else:
         print(f"{entity_type} no encontrada.")
 
-# opcion 19 ver entidades
+# opcion 21 mostrar entidades
 def show_entities(entity_type):
-    query = f"MATCH (n:{entity_type}) RETURN n"
+    limit = input("¿Deseas establecer un límite para el número de entidades a visualizar? Ingresa un número o presiona Enter para mostrar todas: ")
+
+    if limit.isdigit():  # Verifica si el input es un número
+        query = f"MATCH (n:{entity_type}) RETURN n LIMIT {limit}"
+    else:
+        query = f"MATCH (n:{entity_type}) RETURN n"
+
     entities = graph.run(query).data()
     for entity in entities:
         print(entity["n"])
@@ -532,6 +667,38 @@ def menu_modify(menu_type):
                 "enty_key": "titulo"
             }
         }
+    elif entity_type == "USUARIO":
+        entity_key = "email"
+        entity_labels = ["USUARIO", "GAMER"]
+        entity_properties = {
+        "nombre": str,
+        "edad": int,
+        "email": str,
+        "activo": bool,
+        "generos_favoritos": list
+        } 
+        relation_types = {
+            "escribio_review": {
+                "tipo_relacion": "RESEÑO",
+                "propiedades": {
+                    "fecha": str,
+                    "puntuacion": int,
+                    "recomienda": bool
+                },
+                "nombre": "REVIEW",
+                "enty_key": "titulo"
+            },
+            "juega_juego": {
+                "tipo_relacion": "JUEGA",
+                "propiedades": {
+                    "desde": str,
+                    "favorito": bool,
+                    "horas_jugadas": int
+                },
+                "nombre": "JUEGO",
+                "enty_key": "titulo"
+            },
+        }
     elif entity_type == "GENERO":
         entity_key = "nombre"
         entity_labels = ["GENERO"]
@@ -647,7 +814,7 @@ def menu_modify(menu_type):
             pass
         elif choice == "18":
             if is_operation_applicable(entity_type):
-                update_properties_for_multiple_relationships(entity_type, entity_key, relation_types)
+                update_properties_to_multiple_relationships(entity_type, entity_key, relation_types)
             pass
         elif choice == "19":
             if is_operation_applicable(entity_type):
