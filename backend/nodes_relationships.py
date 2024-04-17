@@ -127,9 +127,9 @@ def guide_belongs_to_game(guide_id, game_id, stars):
     game_node = graph.nodes.match("JUEGO", titulo=game_id).first()
     
     if guide_node and game_node:
-        relation = Relationship(guide_node, "EXPLICA", game_node,
+        relation = Relationship(game_node, "TIENE", guide_node,
                                 estrellas=stars,
-                                plataformas=game_node["plataformas"])
+                                complejidad=game_node["complejidad"])
         
         graph.create(relation)
         return relation

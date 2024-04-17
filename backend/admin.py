@@ -576,9 +576,9 @@ def menu_modify(menu_type):
             "tiene_guia": {
                 "tipo_relacion": "TIENE",
                 "propiedades": {
-                    "fecha de creación": str,
-                    "autor": str,
-                    "disponibilidad": bool
+                    "fecha_lanzamiento": str,
+                    "estrellas": int,
+                    "complejidad": str
                 },
                 "nombre": "GUIA",
                 "enty_key": "titulo"
@@ -586,9 +586,9 @@ def menu_modify(menu_type):
             "disponible_en_plataforma": {
                 "tipo_relacion": "DISPONIBLE_EN",
                 "propiedades": {
-                    "formato fisico": str,
-                    "formato digital": bool,
-                    "edicionespecial": bool
+                    "fecha_lanzamiento": str,
+                    "formato_digital": bool,
+                    "edicion_especial": bool
                 },
                 "nombre": "PLATAFORMA",
                 "enty_key": "nombre"
@@ -600,7 +600,7 @@ def menu_modify(menu_type):
         entity_properties = {
             "titulo": str,
             "contenido": str,
-            "calificacion": int,
+            "calificación": int,
             "fecha": str,
             "util": bool
         }
@@ -609,7 +609,7 @@ def menu_modify(menu_type):
                 "tipo_relacion": "CALIFICA",
                 "propiedades": {
                     "fecha": str,
-                    "importancia": str,
+                    "estrellas": int,
                     "verificado": bool,
                 },
                 "nombre": "JUEGO",
@@ -619,7 +619,7 @@ def menu_modify(menu_type):
                 "tipo_relacion": "CALIFICA",
                 "propiedades": {
                     "fecha": str,
-                    "importancia": str,
+                    "estrellas": int,
                     "verificado": bool,
                 },
                 "nombre": "PLATAFORMA",
@@ -629,7 +629,7 @@ def menu_modify(menu_type):
                 "tipo_relacion": "CALIFICA",
                 "propiedades": {
                     "fecha": str,
-                    "importancia": str,
+                    "estrellas": int,
                     "verificado": bool,
                 },
                 "nombre": "GENERO",
@@ -639,7 +639,7 @@ def menu_modify(menu_type):
                 "tipo_relacion": "CALIFICA",
                 "propiedades": {
                     "fecha": str,
-                    "importancia": str,
+                    "estrellas": int,
                     "verificado": bool,
                 },
                 "nombre": "DISTRIBUIDORA",
@@ -652,16 +652,17 @@ def menu_modify(menu_type):
         entity_properties = {
             "nombre": str,
             "fundacion": str,
-            "pais": str,
-            "sitio_web": str
+            "sede": str,
+            "sitio_web": str,
+            "ubicaciones": list
         }
         relation_types = {
             "distribuye_juego": {
                 "tipo_relacion": "DISTRIBUYE",
                 "propiedades": {
-                    "fecha_de_lanzamiento": str,
-                    "territorios_de distribucion": list,
                     "cantidad_distribuida": int,
+                    "territorios_distribucion": list,
+                    "fecha_de_lanzamiento": str,
                 },
                 "nombre": "JUEGO",
                 "enty_key": "titulo"
@@ -692,8 +693,8 @@ def menu_modify(menu_type):
                 "tipo_relacion": "JUEGA",
                 "propiedades": {
                     "desde": str,
+                    "horas_jugadas": int,
                     "favorito": bool,
-                    "horas_jugadas": int
                 },
                 "nombre": "JUEGO",
                 "enty_key": "titulo"
@@ -704,9 +705,10 @@ def menu_modify(menu_type):
         entity_labels = ["GENERO"]
         entity_properties = {
             "nombre": str,
-            "popularidad": int,
             "descripcion": str,
-            "promedio_calificacion": float
+            "inmersion": str,
+            "complejidad": str,
+            "interactividad": str
         }
     elif entity_type == "GUIA":
         entity_key = "titulo"
@@ -715,8 +717,8 @@ def menu_modify(menu_type):
             "titulo": str,
             "contenido": str,
             "autor": str,
+            "edición": int,
             "fecha_publicacion": str,
-            "etiquetas": list
         }
     elif entity_type == "PLATAFORMA":
         entity_key = "nombre"
@@ -724,9 +726,9 @@ def menu_modify(menu_type):
         entity_properties = {
             "nombre": str,
             "fabricante": str,
-            "fecha_lanzamiento": str,
-            "disponible": bool,
-            "exclusivos": list
+            "fecha_creación": str,
+            "generación": int,
+            "precio": float
         }    
     else:
         print("Tipo de entidad no válido.")

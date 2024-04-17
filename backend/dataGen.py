@@ -4,6 +4,39 @@ from nodes_relationships import *
 
 fake = Faker()
 
+generos_videojuegos = [
+    "RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer",
+    "Plataforma", "Simulación", "Deportes", "Carreras", "Puzle", "Sandbox", "Horror",
+    "Sigilo", "Hack and Slash", "RTS", "CCG", "TBS", "Fighting", "Music/Rhythm", "TPS",
+    "Survival", "Open World", "Educational", "Puzzle Platformer", "Building/Management",
+    "Survival Horror", "Graphic Adventure", "Tactical RPG", "RTS", "TBS-Hex", "Action RPG",
+    "Exploration", "Extreme Sports", "Tactical Shooter", "Platform Fighting", "Kart Racing",
+    "Action MMORPG", "Point-and-Click Adventure", "Life Simulation", "TPS with RPG Elements",
+    "RTT", "Weapon-Based Fighting", "City Building Strategy", "Tower Defense Strategy",
+    "Online Multiplayer Shooter", "Survival Arena Shooter", "FPS with RPG Elements"
+]
+
+plataformas_videojuegos = [
+    "PC", "PlayStation 5", "PlayStation 4", "PlayStation 3", "PlayStation 2", "PlayStation",
+    "Xbox Series X", "Xbox One", "Xbox 360", "Xbox", "Nintendo Switch", "Wii U", "Wii",
+    "Nintendo 3DS", "Nintendo DS", "GameCube", "Game Boy Advance", "Game Boy Color", "Game Boy",
+    "Nintendo 64", "Super Nintendo Entertainment System (SNES)", "Nintendo Entertainment System (NES)",
+    "Sega Dreamcast", "Sega Saturn", "Sega Genesis", "Sega Master System", "Atari 2600",
+    "Arcade", "Mobile"
+]
+
+clasificaciones_por_edades = [
+    "EC (Early Childhood)","E (Everyone)","E10+ (Everyone 10 and Older)",
+    "T (Teen)","M (Mature)","AO (Adults Only)","RP (Rating Pending)"
+]
+
+niveles_complejidad = [
+    "Baja",
+    "Media",
+    "Alta"
+]
+
+
 # Función para generar usuarios ficticios
 def generate_fake_users(num_users):
     for _ in range(num_users):
@@ -12,7 +45,7 @@ def generate_fake_users(num_users):
             "edad": random.randint(18, 50),
             "email": fake.email(),
             "activo": random.choice([True, False]),
-            "generos_favoritos": random.sample(["RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer"], random.randint(1, 3))
+            "generos_favoritos": random.sample(generos_videojuegos, random.randint(1, 4))
         }
         create_user(user_properties)
 
@@ -21,28 +54,27 @@ def generate_fake_games(num_games):
     for _ in range(num_games):
         game_properties = {
             "titulo": fake.sentence(nb_words=3),
-            "precio": round(random.uniform(10.0, 60.0), 2),
+            "precio": round(random.uniform(1.0, 100.0), 2),
             "lanzamiento": fake.date_this_decade(),
-            "plataformas": random.sample(['PC', 'PS4', 'Xbox One', 'Switch', 'PS5', 'Xbox Series X'], random.randint(1, 4)),
+            "clasificacion": random.choice(clasificaciones_por_edades),
             "multiplayer": random.choice([True, False]),
         }
         create_video_game(game_properties)
 
 # Función para generar géneros ficticios
 def generate_fake_genres():
-    genres_list = ["RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer"]
     
-    for genre_name in genres_list:
+    for genre_name in generos_videojuegos:
         # Verificar si el género ya existe
         genre_node = graph.nodes.match("GENERO", nombre=genre_name).first()
         
         if not genre_node:
             genre_properties = {
                 "nombre": genre_name,
-                "popularidad": random.randint(1, 100),
                 "descripcion": fake.sentence(nb_words=6),
-                "promedio_calificacion": round(random.uniform(1.0, 10.0), 1),
-                "juegos": random.randint(1, 100000)
+                "inmersión": random.choice(niveles_complejidad),
+                "complejidad": random.choice(niveles_complejidad),
+                "interactividad": random.choice(niveles_complejidad),
             }
             create_genre(genre_properties)
         else:
@@ -50,15 +82,23 @@ def generate_fake_genres():
 
 # Función para generar plataformas ficticias
 def generate_fake_platforms(num_platforms):
-    for _ in range(num_platforms):
-        platform_properties = {
-            "nombre": random.choice(['PC', 'PS4', 'Xbox One', 'Switch', 'PS5', 'Xbox Series X']),
-            "fabricante": fake.company(),
-            "fecha_lanzamiento": fake.date_this_decade(),
-            "disponible": random.choice([True, False]),
-            "exclusivos": random.sample(["RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer"], random.randint(1, 3))
-        }
-        create_platform(platform_properties)
+
+    for genre_name in plataformas_videojuegos:
+        # Verificar si la plataforma ya existe
+        platform_node = graph.nodes.match("PLATAFORMA", nombre=genre_name).first()
+        
+        if not platform_node:
+            platform_properties = {
+                "nombre": genre_name,
+                "fabricante": fake.company(),
+                "fecha_creación": fake.date_this_century(),
+                "generación": random.randint(1, 5),
+                "precio": round(random.uniform(100.0, 1200.0), 2),
+            }
+            create_platform(platform_properties)
+        else:
+            print(f"La plataforma {genre_name} ya existe.")
+
 
 # Función para generar reseñas ficticias
 def generate_fake_reviews(num_reviews):
@@ -66,7 +106,7 @@ def generate_fake_reviews(num_reviews):
         review_properties = {
             "titulo": fake.sentence(nb_words=6),
             "contenido": fake.paragraph(nb_sentences=3),
-            "calificacion": random.randint(1, 10),
+            "calificación": random.randint(1, 10),
             "fecha": fake.date_between(start_date="-2y", end_date="today"),
             "util": random.choice([True, False])
         }
@@ -77,7 +117,7 @@ def generate_fake_publishers(num_publishers):
     for _ in range(num_publishers):
         publisher_properties = {
             "nombre": fake.company(),
-            "fundacion": fake.date_this_century(),
+            "fundación": fake.date_this_century(),
             "pais": fake.country(),
             "sitio_web": fake.url(),
             "sucursales": [fake.country() for _ in range(5)],
@@ -90,12 +130,11 @@ def generate_fake_guides(num_guides):
             "titulo": fake.sentence(nb_words=6),
             "contenido": fake.paragraph(nb_sentences=3),
             "autor": fake.name(),
-            "fecha_publicacion": fake.date_between(start_date="-2y", end_date="today"),
-            "etiquetas": random.sample(["RPG", "FPS", "MOBA", "Aventura", "Estrategia", "Action", "MMORPG", "Multiplayer"], random.randint(1, 3))
+            "edicion": random.choice(1, 5),
+            "fecha_publicacion": fake.date_between(start_date="-2y", end_date="today"),    
         }
         create_guide(guide_properties)
 
-# Función para generar relaciones ficticias
 def generate_fake_relationships(num_relationships):
     users = [user['nombre'] for user in graph.run("MATCH (u:GAMER) RETURN u.nombre AS nombre").data()]
     games = [game['titulo'] for game in graph.run("MATCH (g:JUEGO) RETURN g.titulo AS titulo").data()]
@@ -103,6 +142,7 @@ def generate_fake_relationships(num_relationships):
     platforms = [platform['nombre'] for platform in graph.run("MATCH (p:PLATAFORMA) RETURN p.nombre AS nombre").data()]
     reviews = [review['titulo'] for review in graph.run("MATCH (r:REVIEW) RETURN r.titulo AS titulo").data()]
     guides = [guide['titulo'] for guide in graph.run("MATCH (g:GUIA) RETURN g.titulo AS titulo").data()]
+    publishers = [publisher["nombre"] for publisher in graph.run("MATCH (p:DISTRIBUIDORA) RETURN p.nombre AS nombre").data()]
     
     for _ in range(num_relationships):
         user_id = random.choice(users)
@@ -113,6 +153,7 @@ def generate_fake_relationships(num_relationships):
             review = random.choice(reviews)
         if guides:
             guide = random.choice(guides)
+        publisher_id = random.choice(publishers)
         
         since = fake.date_between(start_date="-2y", end_date="today")
         hours_played = random.randint(1, 100)
@@ -151,29 +192,20 @@ def generate_fake_relationships(num_relationships):
         if guide in guides:
             guides.remove(guide)
 
-def generate_fake_publish_relationships(num_relationships):
-    publishers = [publisher["nombre"] for publisher in graph.run("MATCH (p:DISTRIBUIDORA) RETURN p.nombre AS nombre").data()]
-    games = [game['titulo'] for game in graph.run("MATCH (g:JUEGO) RETURN g.titulo AS titulo").data()]
-
-    for _ in range(num_relationships):
-        publisher_id = random.choice(publishers)
-        game_id = random.choice(games)
-
+        # Generar relaciones de publicación
         cant_distribuida = random.randint(10000,100000)
         territories = [fake.country() for _ in range(4)]
-        date = fake.date_between(start_date="-2y", end_date="today")
+        date_publish = fake.date_between(start_date="-2y", end_date="today")
 
-        publisher_publishes_game(publisher_id, game_id, cant_distribuida, territories, date)
-
+        publisher_publishes_game(publisher_id, game_id, cant_distribuida, territories, date_publish)
 
 # Generar datos ficticios
-# generate_fake_users(500)
+# generate_fake_users(100)
 # generate_fake_games(700)
-# # generate_fake_genres()
+# generate_fake_genres()
 # generate_fake_reviews(100)
 # generate_fake_platforms(5)
 # generate_fake_publishers(10)
 # generate_fake_guides(50)
 # generate_fake_relationships(500)
-
-generate_fake_publish_relationships(600)
+#generate_fake_publish_relationships(600)
