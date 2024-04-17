@@ -524,7 +524,7 @@ def delete_properties_for_multiple_relationships(entity_type, entity_key, relati
             print(f"No se encontraron relaciones válidas para eliminar propiedades.")
     else:
         print(f"{entity_type} no encontrada.")
-        
+
 # opcion 21 mostrar entidades
 def show_entities(entity_type):
     limit = input("¿Deseas establecer un límite para el número de entidades a visualizar? Ingresa un número o presiona Enter para mostrar todas: ")
@@ -666,6 +666,38 @@ def menu_modify(menu_type):
                 "nombre": "JUEGO",
                 "enty_key": "titulo"
             }
+        }
+    elif entity_type == "USUARIO":
+        entity_key = "email"
+        entity_labels = ["USUARIO", "GAMER"]
+        entity_properties = {
+        "nombre": str,
+        "edad": int,
+        "email": str,
+        "activo": bool,
+        "generos_favoritos": list
+        } 
+        relation_types = {
+            "escribio_review": {
+                "tipo_relacion": "RESEÑO",
+                "propiedades": {
+                    "fecha": str,
+                    "puntuacion": int,
+                    "recomienda": bool
+                },
+                "nombre": "REVIEW",
+                "enty_key": "titulo"
+            },
+            "juega_juego": {
+                "tipo_relacion": "JUEGA",
+                "propiedades": {
+                    "desde": str,
+                    "favorito": bool,
+                    "horas_jugadas": int
+                },
+                "nombre": "JUEGO",
+                "enty_key": "titulo"
+            },
         }
     elif entity_type == "GENERO":
         entity_key = "nombre"
