@@ -524,7 +524,19 @@ def delete_properties_for_multiple_relationships(entity_type, entity_key, relati
             print(f"No se encontraron relaciones válidas para eliminar propiedades.")
     else:
         print(f"{entity_type} no encontrada.")
+        
+# opcion 21 mostrar entidades
+def show_entities(entity_type):
+    limit = input("¿Deseas establecer un límite para el número de entidades a visualizar? Ingresa un número o presiona Enter para mostrar todas: ")
 
+    if limit.isdigit():  # Verifica si el input es un número
+        query = f"MATCH (n:{entity_type}) RETURN n LIMIT {limit}"
+    else:
+        query = f"MATCH (n:{entity_type}) RETURN n"
+
+    entities = graph.run(query).data()
+    for entity in entities:
+        print(entity["n"])
        
 def is_operation_applicable(entity_type):
     non_applicable_entities = {
