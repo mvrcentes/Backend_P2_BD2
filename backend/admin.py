@@ -413,26 +413,56 @@ def update_properties_to_multiple_relationships(entity_type, entity_key, relatio
 
 # opcion 19 eliminar 1 o mas propiedades de una relacion
 def delete_relationship_properties(entity_type, entity_key, relation_types):
-    start_entity_name = input(f"Introduzca el nombre de la {entity_type} a la que desea eliminar propiedades de su relación: ")
-    start_entity_node = graph.nodes.match(entity_type).where(f"_.{entity_key} = '{start_entity_name}'").first()
-    # si la entidad existe mustra las opciones de relaciones
+    entity_name = input(f"Introduzca el nombre de {entity_type.lower()}: ")
+
+    query = (
+        f"MATCH (e:{entity_type}) "
+        f"WHERE e.{entity_key} = '{entity_name}' "
+        "RETURN e"
+    )
+    start_entity_node = graph.run(query).data()
+
     if start_entity_node:
         print("Tipos de relación disponibles:")
         for relation_name in relation_types:
             print(relation_name)
-        relationship_type = input("Introduzca el tipo de relación: ")
-        end_entity_name = input(f"Introduzca el nombre de la {relation_types[relationship_type]['nombre']} con la que desea eliminar propiedades de su relación: ")
-        end_entity_node = graph.nodes.match(relation_types[relationship_type]["nombre"]).where(f"_.{relation_types[relationship_type]['enty_key']} = '{end_entity_name}'").first()
-        if end_entity_node:
-            # Solicitar las propiedades a eliminar
-            properties_input = input("Introduzca las propiedades a eliminar, separadas por comas: ")
-            properties = properties_input.split(",")
-            # Eliminar las propiedades de la relación
-            delete_relation_properties(RelationshipMatcher(graph), entity_type, entity_key, start_entity_name, relation_types[relationship_type]["tipo_relacion"], relation_types[relationship_type]["nombre"], relation_types[relationship_type]["enty_key"], end_entity_name, *properties)
+        relationship_choice = input("Seleccione el tipo de relación para eliminar propiedades: ")
+        relationship_type = relation_types[relationship_choice]["tipo_relacion"]
+        end_node_label = relation_types[relationship_choice]["nombre"]
+        end_node_key = relation_types[relationship_choice]["enty_key"]
+
+        end_entity_name = input(f"Introduzca el nombre de {end_node_label} cuya relación desea modificar: ")
+
+        query = (
+            f"MATCH (s:{entity_type})-[r:{relationship_type}]->(e:{end_node_label}) "
+            f"WHERE s.{entity_key} = '{entity_name}' AND e.{end_node_key} = '{end_entity_name}' "
+            "RETURN r, e"
+        )
+        relationship_node = graph.run(query).data()
+
+        if relationship_node and 'r' in relationship_node[0]:
+            print("Propiedades actuales de la relación:")
+            relationship_properties = relationship_node[0]['r']
+            for key, value in relationship_properties.items():
+                # Convert value to string explicitly to avoid formatting issues
+                value_str = str(value)
+                print(f"{key}: {value_str}")
+            input_properties = input("Introduzca las propiedades a eliminar, separadas por comas: ")
+            properties_to_remove = input_properties.split(",")
+
+            # Building the removal part of the query
+            removal_part = ", ".join([f"r.{prop} = NULL" for prop in properties_to_remove])
+            query = (
+                f"MATCH (s:{entity_type} {{{entity_key}: '{entity_name}'}})-[r:{relationship_type}]->(e:{end_node_label} {{{end_node_key}: '{end_entity_name}'}}) "
+                f"SET {removal_part}"
+            )
+            graph.run(query)
         else:
-            print(f"{relation_types[relationship_type]['nombre']} no encontrada.")
+            print("No se encontró una relación válida o la entidad especificada.")
     else:
-        print(f"{entity_type} no encontrada.")
+        print(f"No se encontró ninguna entidad con el nombre {entity_name} del tipo {entity_type}.")
+
+
 
 # opcion 20 eliminar 1 o mas propiedades de multiples relaciones
 def delete_properties_for_multiple_relationships(entity_type, entity_key, relation_types):
