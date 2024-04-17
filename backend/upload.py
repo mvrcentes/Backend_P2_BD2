@@ -1,12 +1,12 @@
 from database import graph
-from py2neo import Graph, NodeMatcher
 import csv
 import time
+import ast
 
-print(graph)
+# Conectar a la base de datos de Neo4j
 
 def main():
-    f = '/Users/mvrcentes/Downloads/video_games.csv'
+    f = 'video_games.csv'
     
     with open(f, 'r+') as in_file:
         reader = csv.reader(in_file, delimiter=',')
@@ -14,36 +14,41 @@ def main():
         batch = graph.begin()                           
 
         try:
+            print("Processing file...")
             i = 0
             j = 0
             for row in reader:    
                 if row:
+                    print(row)
+                    # Convertir la cadena de plataformas a lista
+                    plataformas = ast.literal_eval(row[3])
+                    
                     params = {
-                        "a": row[0],  # Title
-                        "b": row[1],  # Features.Handheld?
-                        "c": row[2],  # Features.Max Players
-                        "d": row[3],  # Features.Multiplatform?
-                        "e": row[4],  # Features.Online?
-                        "f": row[5],  # Metadata.Genres
-                        "g": row[6],  # Metadata.Licensed?
-                        "h": row[7],  # Metadata.Publishers
-                        "i": row[8],  # Metadata.Sequel?
-                        "j": row[9],  # Metrics.Review Score
-                        "k": row[10], # Metrics.Sales
-                        "l": row[11], # Metrics.Used Price
-                        "m": row[12], # Release.Console
-                        "n": row[13], # Release.Rating
-                        "o": row[14], # Release.Re-release?
-                        "p": row[15]  # Release.Year
+                        "a": row[0],  
+                        "b": row[1],  
+                        "c": row[2],  
+                        "d": plataformas,  
+                        "e": row[4],  
+                        "f": row[5],  
+                        "g": row[6],  
+                        "h": row[7],  
+                        "i": row[8],  
                     }
 
-                    query = """
-                        MERGE (game:VIDEOJUEGO {Title: $a, Features_Handheld: $b, Features_Max_Players: $c, Features_Multiplatform: $d, Features_Online: $e,
-                        Metadata_Genres: $f, Metadata_Licensed: $g, Metadata_Publishers: $h, Metadata_Sequel: $i, Metrics_Review_Score: $j,
-                        Metrics_Sales: $k, Metrics_Used_Price: $l, Release_Console: $m, Release_Rating: $n, Release_Re_release: $o, Release_Year: $p})
+                    # Crear nodo con labels VIDEOJUEGO y JUEGO
+                    query_nodo = """
+                        MERGE (n:VIDEOJUEGO:JUEGO {titulo: $a, precio: $b, lanzamiento: $c, plataformas: $d, multijugador: $e})
                     """
+                    batch.run(query_nodo, params)
 
-                    batch.run(query, params)
+                    # Crear relación PERTENECE_A
+                    query_relacion = """
+                        MATCH (n:VIDEOJUEGO {titulo: $a})
+                        MATCH (g:GENERO {nombre: $f})
+                        MERGE (n)-[r:PERTENECE_A {fecha_lanzamiento: $g, exclusivo: $h, calificacion_media: $i}]->(g)
+                    """
+                    batch.run(query_relacion, params)
+
                     i += 1
                     j += 1
 
@@ -61,7 +66,7 @@ def main():
             print(e, row, reader.line_num)
 
 def strip(string): 
-    return ''.join([c if 0 < ord(c) < 128 else ' ' for c in string]) #removes non utf-8 chars from string within cell
+    return ''.join([c if 0 < ord(c) < 128 else ' ' for c in string]) 
 
 if __name__ == '__main__':
     start = time.time()
