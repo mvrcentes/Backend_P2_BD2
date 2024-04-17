@@ -23,7 +23,7 @@ def generate_fake_games(num_games):
             "titulo": fake.sentence(nb_words=3),
             "precio": round(random.uniform(10.0, 60.0), 2),
             "lanzamiento": fake.date_this_decade(),
-            "plataformas": random.sample(["PC", "Xbox", "PlayStation", "Nintendo Switch"], random.randint(1, 4)),
+            "plataformas": random.sample(['PC', 'PS4', 'Xbox One', 'Switch', 'PS5', 'Xbox Series X'], random.randint(1, 4)),
             "multiplayer": random.choice([True, False]),
         }
         create_video_game(game_properties)
@@ -52,7 +52,7 @@ def generate_fake_genres():
 def generate_fake_platforms(num_platforms):
     for _ in range(num_platforms):
         platform_properties = {
-            "nombre": random.choice(["PC", "Xbox", "PlayStation", "Nintendo Switch"]),
+            "nombre": random.choice(['PC', 'PS4', 'Xbox One', 'Switch', 'PS5', 'Xbox Series X']),
             "fabricante": fake.company(),
             "fecha_lanzamiento": fake.date_this_decade(),
             "disponible": random.choice([True, False]),
