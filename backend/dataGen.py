@@ -63,7 +63,6 @@ def generate_fake_games(num_games):
 
 # Función para generar géneros ficticios
 def generate_fake_genres():
-    
     for genre_name in generos_videojuegos:
         # Verificar si el género ya existe
         genre_node = graph.nodes.match("GENERO", nombre=genre_name).first()
@@ -72,7 +71,7 @@ def generate_fake_genres():
             genre_properties = {
                 "nombre": genre_name,
                 "descripcion": fake.sentence(nb_words=6),
-                "inmersión": random.choice(niveles_complejidad),
+                "inmersion": random.choice(niveles_complejidad),
                 "complejidad": random.choice(niveles_complejidad),
                 "interactividad": random.choice(niveles_complejidad),
             }
@@ -80,24 +79,22 @@ def generate_fake_genres():
         else:
             print(f"El género {genre_name} ya existe.")
 
-# Función para generar plataformas ficticias
-def generate_fake_platforms(num_platforms):
-
-    for genre_name in plataformas_videojuegos:
+def generate_fake_platforms():
+    for platform_name in plataformas_videojuegos:
         # Verificar si la plataforma ya existe
-        platform_node = graph.nodes.match("PLATAFORMA", nombre=genre_name).first()
+        platform_node = graph.nodes.match("PLATAFORMA", nombre=platform_name).first()
         
         if not platform_node:
             platform_properties = {
-                "nombre": genre_name,
+                "nombre": platform_name,
                 "fabricante": fake.company(),
-                "fecha_creación": fake.date_this_century(),
-                "generación": random.randint(1, 5),
+                "fecha_creacion": fake.date_this_century(),
+                "generacion": random.randint(1, 5),
                 "precio": round(random.uniform(100.0, 1200.0), 2),
             }
             create_platform(platform_properties)
         else:
-            print(f"La plataforma {genre_name} ya existe.")
+            print(f"La plataforma {platform_name} ya existe.")
 
 
 # Función para generar reseñas ficticias
@@ -130,7 +127,7 @@ def generate_fake_guides(num_guides):
             "titulo": fake.sentence(nb_words=6),
             "contenido": fake.paragraph(nb_sentences=3),
             "autor": fake.name(),
-            "edicion": random.choice(1, 5),
+            "edicion": random.choice([1, 2, 3, 4, 5]),  # List of integers for editions
             "fecha_publicacion": fake.date_between(start_date="-2y", end_date="today"),    
         }
         create_guide(guide_properties)
@@ -200,12 +197,12 @@ def generate_fake_relationships(num_relationships):
         publisher_publishes_game(publisher_id, game_id, cant_distribuida, territories, date_publish)
 
 # Generar datos ficticios
-# generate_fake_users(100)
-# generate_fake_games(700)
-# generate_fake_genres()
-# generate_fake_reviews(100)
-# generate_fake_platforms(5)
-# generate_fake_publishers(10)
-# generate_fake_guides(50)
-# generate_fake_relationships(500)
-#generate_fake_publish_relationships(600)
+
+#generate_fake_genres()
+#generate_fake_platforms()
+#generate_fake_users(500)
+#generate_fake_games(1000)
+#generate_fake_reviews(80)
+#generate_fake_publishers(30)
+#generate_fake_guides(75)
+generate_fake_relationships(300)
