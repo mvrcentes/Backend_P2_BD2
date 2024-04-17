@@ -764,7 +764,7 @@ def menu_modify(menu_type):
         elif choice == "2":
             create_entity(entity_properties, entity_labels)
         elif choice == "3":
-            update_entity(entity_properties, entity_labels, entity_type)
+            update_entity(entity_properties, entity_labels, entity_type, entity_key)
         elif choice == "4":
             delete_entity(entity_type, entity_key)
         elif choice == "5":
