@@ -23,7 +23,8 @@ def generate_fake_games(num_games):
             "titulo": fake.sentence(nb_words=3),
             "precio": round(random.uniform(10.0, 60.0), 2),
             "lanzamiento": fake.date_this_decade(),
-            "plataformas": random.sample(["PC", "Xbox", "PlayStation", "Nintendo Switch"], random.randint(1, 4))
+            "plataformas": random.sample(["PC", "Xbox", "PlayStation", "Nintendo Switch"], random.randint(1, 4)),
+            "multiplayer": random.choice([True, False]),
         }
         create_video_game(game_properties)
 
@@ -40,7 +41,8 @@ def generate_fake_genres():
                 "nombre": genre_name,
                 "popularidad": random.randint(1, 100),
                 "descripcion": fake.sentence(nb_words=6),
-                "promedio_calificacion": round(random.uniform(1.0, 10.0), 1)
+                "promedio_calificacion": round(random.uniform(1.0, 10.0), 1),
+                "juegos": random.randint(1, 100000)
             }
             create_genre(genre_properties)
         else:
@@ -77,7 +79,8 @@ def generate_fake_publishers(num_publishers):
             "nombre": fake.company(),
             "fundacion": fake.date_this_century(),
             "pais": fake.country(),
-            "sitio_web": fake.url()
+            "sitio_web": fake.url(),
+            "sucursales": random.randint(1, 100),
         }
         create_publisher(publisher_properties)
 
