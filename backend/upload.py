@@ -37,7 +37,7 @@ def main():
 
                     # Crear nodo con labels VIDEOJUEGO y JUEGO
                     query_nodo = """
-                        MERGE (n:VIDEOJUEGO:JUEGO {titulo: $a, precio: $b, lanzamiento: $c, plataformas: $d, multijugador: $e})
+                        MERGE (n:VIDEOJUEGO:JUEGO {titulo: $a, precio: $b, lanzamiento: $c, clasificacion: $d, multijugador: $e})
                     """
                     batch.run(query_nodo, params)
 
