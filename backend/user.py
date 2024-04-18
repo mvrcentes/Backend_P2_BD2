@@ -3,7 +3,7 @@ from crud import *
 def find_games_by_genre(genre):
     query = (
         "MATCH (g:VIDEOJUEGO)-[:PERTENECE_A]->(genre:GENERO {nombre: $genre}) "
-        'RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento LIMIT 20'
+        'RETURN g.titulo AS Titulo, g.clasificacion as Clasificacion, g.lanzamiento AS Fecha_de_Lanzamiento LIMIT 20'
     )
     result = graph.run(query, genre=genre)
     return result
@@ -12,7 +12,7 @@ def find_games_by_title(title):
     query = (
         "MATCH (g:VIDEOJUEGO) "
         "WHERE toLower(g.titulo) CONTAINS toLower($title) "
-        "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento LIMIT 20"
+        "RETURN g.titulo AS Titulo, g.clasificacion as Clasificacion, g.lanzamiento AS Fecha_de_Lanzamiento LIMIT 20"
     )
     result = graph.run(query, title=title)
     return result
@@ -25,7 +25,7 @@ def recommend_games_for_user_genres(user_id):
         "WITH g, genre "
         "MATCH (r:REVIEW)-[cal:CALIFICA]->(g) "
         "WHERE cal.estrellas >= 3 "
-        "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas, g.lanzamiento AS Fecha_de_Lanzamiento, genre.nombre as Genero, AVG(cal.estrellas) AS Rating "
+        "RETURN g.titulo AS Titulo, g.clasificacion as Clasificacion, g.lanzamiento AS Fecha_de_Lanzamiento, genre.nombre as Genero, AVG(cal.estrellas) AS Rating "
         "ORDER BY Rating DESC LIMIT 30"
     )
     result = graph.run(query2, user_id=user_id)
@@ -36,7 +36,7 @@ def recommend_games_for_user(user_id):
     query1 = (
         "MATCH (u:GAMER {nombre: $user_id})-[:JUEGA]->(g:JUEGO)<-[:JUEGA]-(other:GAMER)-[:JUEGA]->(rec:JUEGO) "
         "WHERE NOT (u)-[:JUEGA]->(rec) "
-        "RETURN rec.titulo AS title, rec.plataformas AS platform, rec.lanzamiento AS release_date, COUNT(*) AS score "
+        "RETURN rec.titulo AS title, rec.clasificacion AS clasificacion, rec.lanzamiento AS release_date, COUNT(*) AS score "
         "ORDER BY score DESC LIMIT 30 "
     )
     result = graph.run(query1, user_id=user_id)
@@ -121,7 +121,7 @@ def most_popular_games_by_genre():
 def top_rated_games_overall():
     query = (
         "MATCH (g:JUEGO)<-[:CALIFICA]-(r:REVIEW) "
-        "RETURN g.titulo AS Titulo, g.plataformas AS Plataformas "
+        "RETURN g.titulo AS Titulo, g.clasificacion as Clasificacion "
         "LIMIT 10"
     )
     result = graph.run(query)
@@ -132,16 +132,6 @@ def most_active_gamers():
         "MATCH (g:GAMER)-[r:JUEGA]->(j:JUEGO) "
         "RETURN g.nombre AS Gamer, SUM(r.horas_jugadas) AS Horas_Totales "
         "ORDER BY Horas_Totales DESC LIMIT 10"
-    )
-    result = graph.run(query)
-    return result.data()
-
-def games_with_most_diverse_platforms():
-    query = (
-        "MATCH (g:JUEGO) "
-        "WITH g, SIZE(g.plataformas) AS Numero_de_Plataformas "
-        "ORDER BY Numero_de_Plataformas DESC LIMIT 10 "
-        "RETURN g.titulo AS Titulo, Numero_de_Plataformas AS Numero_de_Plataformas"
     )
     result = graph.run(query)
     return result.data()
