@@ -196,6 +196,26 @@ def generate_fake_relationships(num_relationships):
 
         publisher_publishes_game(publisher_id, game_id, cant_distribuida, territories, date_publish)
 
+
+
+
+
+def review_rates(review_id, entity_type, entity_id, date, stars, verified):
+    review_node = graph.nodes.match("REVIEW", titulo=review_id).first()
+
+    # Determinar la etiqueta del nodo según el tipo de entidad
+    if entity_type == "JUEGO":
+        entity_node = graph.nodes.match("JUEGO", titulo=entity_id).first()
+    elif entity_type == "GENERO":
+        entity_node = graph.nodes.match("GENERO", nombre=entity_id).first()
+    elif entity_type == "DISTRIBUIDORA":
+        entity_node = graph.nodes.match("DISTRIBUIDORA", nombre=entity_id).first()
+    elif entity_type == "PLATAFORMA":
+        entity_node = graph.nodes.match("PLATAFORMA", nombre=entity_id).first()
+    else:
+        print(f"Tipo de entidad no válido: {entity_type}")
+    return None
+
 # Generar datos ficticios
 
 #generate_fake_genres()
