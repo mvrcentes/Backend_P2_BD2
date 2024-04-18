@@ -62,7 +62,7 @@ def main():
             games_list = list(recommended_games)
 
             if games_list:
-                headers = ["Título", "Plataformas", "Fecha de Lanzamiento", "Género", "Rating"]
+                headers = ["Título", "Clasificacion", "Fecha de Lanzamiento", "Género", "Rating"]
                 header_format = "{:<20} | {:<50} | {:<20} | {:<10} | {:<10}"
 
                 print(header_format.format(*headers))
@@ -70,12 +70,12 @@ def main():
 
                 for record in games_list:
                     titulo = record['Titulo'][:20].ljust(20)
-                    plataformas = str(record['Plataformas'])[:50].ljust(50)
+                    clasificacion = str(record['Clasificacion'])[:50].ljust(50)
                     fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
                     genero = str(record['Genero'])[:10].ljust(10)
                     rating = str(record['Rating'])[:10].ljust(10)
 
-                    print(f"{titulo} | {plataformas} | {fecha} | {genero} | {rating}")
+                    print(f"{titulo} | {clasificacion} | {fecha} | {genero} | {rating}")
             else:
                 print("No se encontraron juegos recomendados.")
         elif choice == "2":
@@ -84,7 +84,7 @@ def main():
             games_list = list(recommended_games)
 
             if games_list:
-                headers = ["Título", "Plataformas", "Fecha de Lanzamiento", "Score"]
+                headers = ["Título", "Clasificacion", "Fecha de Lanzamiento", "Score"]
                 header_format = "{:<20} | {:<50} | {:<20} | {:<10}"
 
                 print(header_format.format(*headers))
@@ -92,11 +92,11 @@ def main():
 
                 for record in games_list:
                     titulo = record['title'][:20].ljust(20)
-                    plataformas = str(record['platform'])[:50].ljust(50)
+                    clasificacion = str(record['platform'])[:50].ljust(50)
                     fecha = str(record['release_date'])[:20].ljust(20)
                     score = str(record['score'])[:10].ljust(10)
 
-                    print(f"{titulo} | {plataformas} | {fecha} | {score}")
+                    print(f"{titulo} | {clasificacion} | {fecha} | {score}")
             else:
                 print("No se encontraron juegos recomendados.")
         elif choice == "3":
@@ -106,7 +106,7 @@ def main():
 
             if games_list:
                 print("Recomendaciones basadas en el género seleccionado:\n")
-                headers = ["Título", "Plataformas", "Fecha_de_Lanzamiento"]
+                headers = ["Título", "Clasificacion", "Fecha_de_Lanzamiento"]
                 header_format = "{:<30} | {:<50} | {:<20}"
 
                 print(header_format.format(*headers))
@@ -114,10 +114,10 @@ def main():
 
                 for record in games_list:
                     titulo = record['Titulo'][:30].ljust(30)
-                    plataformas = str(record['Plataformas'])[:50].ljust(50)
+                    clasificacion = str(record['clasificacion'])[:50].ljust(50)
                     fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
 
-                    print(f"{titulo} | {plataformas} | {fecha}")
+                    print(f"{titulo} | {clasificacion} | {fecha}")
             else:
                 print(f"No se encontraron juegos para el género {genre}.")
         elif choice == "4":
@@ -128,7 +128,7 @@ def main():
 
             if games_list:
                 print("Resultados de la búsqueda:\n")
-                headers = ["Título", "Plataformas", "Fecha de Lanzamiento"]
+                headers = ["Título", "Clasificacion", "Fecha de Lanzamiento"]
                 header_format = "{:<30} | {:<50} | {:<20}"
 
                 print(header_format.format(*headers))
@@ -136,10 +136,10 @@ def main():
 
                 for record in games_list:
                     titulo = record['Titulo'][:30].ljust(30)
-                    plataformas = str(record['Plataformas'])[:50].ljust(50)
+                    clasificacion = str(record['clasificacion'])[:50].ljust(50)
                     fecha = str(record['Fecha_de_Lanzamiento'])[:20].ljust(20)
 
-                    print(f"{titulo} | {plataformas} | {fecha}")
+                    print(f"{titulo} | {clasificacion} | {fecha}")
             else:
                 print(f"No se encontraron juegos con el título {titulo}.")
         elif choice == "5":
@@ -210,7 +210,6 @@ def main():
                 print("1. Juegos más populares por género")
                 print("2. Mejores juegos")
                 print("3. Gamers más activos")
-                print("4. Juegos con más plataformas")
                 print("5. Regresar al menú principal\n")
                 
                 choice = input("Por favor, seleccione una opción: ")
@@ -241,7 +240,7 @@ def main():
 
                     if games_list:
                         print("Mejores juegos:\n")
-                        headers = ["Título", "Plataformas"]
+                        headers = ["Título", "Clasificacion"]
                         header_format = "{:<30} | {:<50}"
 
                         print(header_format.format(*headers))
@@ -249,7 +248,7 @@ def main():
 
                         for record in games_list:
                             titulo = record['Titulo'][:30].ljust(30)
-                            rating = str(record['Plataformas'])[:50].ljust(50)
+                            rating = str(record['Clasificacion'])[:50].ljust(50)
 
                             print(f"{titulo} | {rating}")
                     else:
@@ -271,25 +270,6 @@ def main():
                             horas = str(record['Horas_Totales'])[:30].ljust(30)
 
                             print(f"{nombre} | {horas}")
-                elif choice == "4":
-                    games_platforms = games_with_most_diverse_platforms()
-                    games_list = list(games_platforms)
-
-                    if games_list:
-                        print("Juegos con más plataformas:\n")
-                        headers = ["Título", "Plataformas"]
-                        header_format = "{:<30} | {:<50}"
-
-                        print(header_format.format(*headers))
-                        print("-" * 30 + "|" + "-" * 50)
-
-                        for record in games_list:
-                            titulo = record['Titulo'][:30].ljust(30)
-                            plataformas = str(record['Numero_de_Plataformas'])[:50].ljust(50)
-
-                            print(f"{titulo} | {plataformas}")
-                    else:
-                        print("No se encontraron juegos.")
                 elif choice == "5":
                     more_options = False
                 else:
